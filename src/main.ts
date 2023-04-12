@@ -1,4 +1,3 @@
-import glsl from "./glsl";
+import cam from "./cam";
 import "./style.css";
-
-glsl();
+cam();
