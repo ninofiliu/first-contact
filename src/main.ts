@@ -1,3 +1,3 @@
-import cam from "./cam";
+import detect from "./detect";
 import "./style.css";
-cam();
+detect();
