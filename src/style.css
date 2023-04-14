@@ -1,3 +1,10 @@
 :root {
   color-scheme: dark;
 }
+body {
+  display: flex;
+  gap: 8px;
+}
+pre {
+  margin: 0;
+}

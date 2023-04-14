@@ -3,6 +3,25 @@ import "@tensorflow/tfjs-core";
 import "@tensorflow/tfjs-backend-webgl";
 import * as faceDetection from "@tensorflow-models/face-detection";
 import * as handPoseDetection from "@tensorflow-models/hand-pose-detection";
+import { Vector3 } from "three";
+
+const getFlexion = (hand: handPoseDetection.Hand) => {
+  if (!hand.keypoints3D) throw new Error("should detect 3D");
+
+  const base = new Vector3(
+    hand.keypoints3D[6].x - hand.keypoints3D[5].x,
+    hand.keypoints3D[6].y - hand.keypoints3D[5].y,
+    hand.keypoints3D[6].z! - hand.keypoints3D[5].z!
+  ).normalize();
+
+  const top = new Vector3(
+    hand.keypoints3D[8].x - hand.keypoints3D[7].x,
+    hand.keypoints3D[8].y - hand.keypoints3D[7].y,
+    hand.keypoints3D[8].z! - hand.keypoints3D[7].z!
+  ).normalize();
+
+  return base.dot(top);
+};
 
 export default async () => {
   const canvas = document.createElement("canvas");
@@ -34,6 +53,12 @@ export default async () => {
     }
   );
 
+  const logger = document.createElement("pre");
+  document.body.append(logger);
+  const log = (str: string) => {
+    logger.innerHTML = str;
+  };
+
   const loop = async () => {
     ctx.drawImage(video, 0, 0);
 
@@ -56,6 +81,8 @@ export default async () => {
       for (const { x, y } of hand.keypoints) {
         ctx.fillRect(x - 2, y - 2, 5, 5);
       }
+      const flexion = getFlexion(hand);
+      log(flexion.toFixed(2));
     }
 
     requestAnimationFrame(loop);
