@@ -5,19 +5,19 @@ import * as faceDetection from "@tensorflow-models/face-detection";
 import * as handPoseDetection from "@tensorflow-models/hand-pose-detection";
 import { Vector3 } from "three";
 
-const getFlexion = (hand: handPoseDetection.Hand) => {
+const getFingerFlexion = (hand: handPoseDetection.Hand, index: number) => {
   if (!hand.keypoints3D) throw new Error("should detect 3D");
 
   const base = new Vector3(
-    hand.keypoints3D[6].x - hand.keypoints3D[5].x,
-    hand.keypoints3D[6].y - hand.keypoints3D[5].y,
-    hand.keypoints3D[6].z! - hand.keypoints3D[5].z!
+    hand.keypoints3D[4 * index + 2].x - hand.keypoints3D[4 * index + 1].x,
+    hand.keypoints3D[4 * index + 2].y - hand.keypoints3D[4 * index + 1].y,
+    hand.keypoints3D[4 * index + 2].z! - hand.keypoints3D[4 * index + 1].z!
   ).normalize();
 
   const top = new Vector3(
-    hand.keypoints3D[8].x - hand.keypoints3D[7].x,
-    hand.keypoints3D[8].y - hand.keypoints3D[7].y,
-    hand.keypoints3D[8].z! - hand.keypoints3D[7].z!
+    hand.keypoints3D[4 * index + 4].x - hand.keypoints3D[4 * index + 3].x,
+    hand.keypoints3D[4 * index + 4].y - hand.keypoints3D[4 * index + 3].y,
+    hand.keypoints3D[4 * index + 4].z! - hand.keypoints3D[4 * index + 3].z!
   ).normalize();
 
   return base.dot(top);
@@ -81,8 +81,17 @@ export default async () => {
       for (const { x, y } of hand.keypoints) {
         ctx.fillRect(x - 2, y - 2, 5, 5);
       }
-      const flexion = getFlexion(hand);
-      log(flexion.toFixed(2));
+      const fingerFlexions = Array(5)
+        .fill(null)
+        .map((_, i) => getFingerFlexion(hand, i));
+      const isRock =
+        (fingerFlexions[1] -
+          fingerFlexions[2] -
+          fingerFlexions[3] +
+          fingerFlexions[4]) /
+          4 >
+        0.2;
+      log(isRock ? "ROCK \\m/" : "not rock");
     }
 
     requestAnimationFrame(loop);
