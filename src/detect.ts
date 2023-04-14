@@ -20,8 +20,7 @@ export default async () => {
     faceDetection.SupportedModels.MediaPipeFaceDetector,
     {
       runtime: "mediapipe",
-      // TODO use node_modules
-      solutionPath: "https://cdn.jsdelivr.net/npm/@mediapipe/face_detection",
+      solutionPath: "/pkgs/@mediapipe/face_detection",
     }
   );
 
