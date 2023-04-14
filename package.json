@@ -14,7 +14,9 @@
   },
   "dependencies": {
     "@mediapipe/face_detection": "^0.4.1646425229",
+    "@mediapipe/hands": "^0.4.1675469240",
     "@tensorflow-models/face-detection": "^1.0.1",
+    "@tensorflow-models/hand-pose-detection": "^2.0.0",
     "@tensorflow/tfjs-backend-webgl": "^4.4.0",
     "@tensorflow/tfjs-core": "^4.4.0"
   }

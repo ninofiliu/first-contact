@@ -2,6 +2,7 @@ import "@mediapipe/face_detection";
 import "@tensorflow/tfjs-core";
 import "@tensorflow/tfjs-backend-webgl";
 import * as faceDetection from "@tensorflow-models/face-detection";
+import * as handPoseDetection from "@tensorflow-models/hand-pose-detection";
 
 export default async () => {
   const canvas = document.createElement("canvas");
@@ -16,17 +17,27 @@ export default async () => {
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
 
-  const detector = await faceDetection.createDetector(
+  const faceDetector = await faceDetection.createDetector(
     faceDetection.SupportedModels.MediaPipeFaceDetector,
     {
       runtime: "mediapipe",
       solutionPath: "/pkgs/@mediapipe/face_detection",
+      maxFaces: 1,
+    }
+  );
+  const handPoseDetector = await handPoseDetection.createDetector(
+    handPoseDetection.SupportedModels.MediaPipeHands,
+    {
+      runtime: "mediapipe",
+      solutionPath: "/pkgs/@mediapipe/hands",
+      modelType: "full",
     }
   );
 
   const loop = async () => {
     ctx.drawImage(video, 0, 0);
-    for (const face of await detector.estimateFaces(video)) {
+
+    for (const face of await faceDetector.estimateFaces(video)) {
       ctx.strokeStyle = "lime";
       ctx.strokeRect(
         face.box.xMin,
@@ -39,6 +50,14 @@ export default async () => {
         ctx.fillRect(x - 2, y - 2, 5, 5);
       }
     }
+
+    for (const hand of await handPoseDetector.estimateHands(video)) {
+      ctx.fillStyle = "red";
+      for (const { x, y } of hand.keypoints) {
+        ctx.fillRect(x - 2, y - 2, 5, 5);
+      }
+    }
+
     requestAnimationFrame(loop);
   };
   loop();
