@@ -1,3 +1,3 @@
-import detect from "./detect";
+import glsl from "./glsl";
 import "./style.css";
-detect();
+glsl();

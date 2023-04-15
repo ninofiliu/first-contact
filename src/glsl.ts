@@ -46,6 +46,7 @@ export default () => {
 
   const locations = {
     a_position: gl.getAttribLocation(program, "a_position"),
+    u_time: gl.getUniformLocation(program, "u_time"),
   };
   gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
   gl.enableVertexAttribArray(locations.a_position);
@@ -57,6 +58,7 @@ export default () => {
   );
 
   const loop = () => {
+    gl.uniform1f(locations.u_time, performance.now() / 1000);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
     requestAnimationFrame(loop);
   };
