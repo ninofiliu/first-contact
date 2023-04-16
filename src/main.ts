@@ -1,3 +1,3 @@
-import glsl from "./glsl";
+import native from "./native";
 import "./style.css";
-glsl();
+native();

@@ -24,6 +24,9 @@ dependencies:
     version: 0.151.3
 
 devDependencies:
+  '@types/dom-webcodecs':
+    specifier: ^0.1.7
+    version: 0.1.7
   '@types/three':
     specifier: ^0.150.1
     version: 0.150.1
@@ -320,6 +323,10 @@ packages:
     transitivePeerDependencies:
       - encoding
     dev: false
+
+  /@types/dom-webcodecs@0.1.7:
+    resolution: {integrity: sha512-1euwRyJ7rQrddOa24d5ZcoDRMp68xEIwyb7PKb3Wpc2OullUxHQ4a63WPa5V8R+KtCWISKjgS+f83HCUVhXS/w==}
+    dev: true
 
   /@types/long@4.0.2:
     resolution: {integrity: sha512-MqTGEo5bj5t157U6fA/BiDynNkn0YknVdh48CMPkTSpFTVmvao5UQmm7uEF6xBEo7qIMAlY/JSleYaE6VOdpaA==}
