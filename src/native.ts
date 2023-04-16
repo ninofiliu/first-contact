@@ -47,9 +47,26 @@ export default async () => {
 
   const encoder = new VideoEncoder({
     error: console.error,
-    output: (chunk) => {
-      decoder.decode(chunk);
-    },
+    output: (() => {
+      let lastChunk: EncodedVideoChunk;
+      let moshing = false;
+      document.addEventListener("keydown", (evt) => {
+        if (evt.key !== " ") return;
+        moshing = true;
+      });
+      document.addEventListener("keyup", (evt) => {
+        if (evt.key !== " ") return;
+        moshing = false;
+      });
+      return (chunk) => {
+        if (moshing) {
+          decoder.decode(lastChunk || chunk);
+        } else {
+          decoder.decode(chunk);
+          lastChunk = chunk;
+        }
+      };
+    })(),
   });
   encoder.configure({ codec: "vp8", width, height });
 
