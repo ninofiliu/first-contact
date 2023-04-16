@@ -15,6 +15,10 @@ import x from "./x";
 }
 
 export default async () => {
+  const img = document.createElement("img");
+  img.src = "/media/pic.jpg";
+  await new Promise((r) => img.addEventListener("load", r, { once: true }));
+
   const stream = await navigator.mediaDevices.getUserMedia({ video: true });
   const settings = stream.getVideoTracks()[0].getSettings();
   const width = x(settings.width);
@@ -22,6 +26,11 @@ export default async () => {
   const video = document.createElement("video");
   video.srcObject = stream;
   video.autoplay = true;
+
+  const prevCanvas = document.createElement("canvas");
+  prevCanvas.width = width;
+  prevCanvas.height = height;
+  const prevCtx = x(prevCanvas.getContext("2d"));
 
   const inCanvas = document.createElement("canvas");
   inCanvas.width = width;
@@ -45,35 +54,36 @@ export default async () => {
   });
   decoder.configure({ codec: "vp8" });
 
-  const encoder = new VideoEncoder({
+  let prevDecoded = false;
+  const prevEncoder = new VideoEncoder({
     error: console.error,
-    output: (() => {
-      let lastChunk: EncodedVideoChunk;
-      let moshing = false;
-      document.addEventListener("keydown", (evt) => {
-        if (evt.key !== " ") return;
-        moshing = true;
-      });
-      document.addEventListener("keyup", (evt) => {
-        if (evt.key !== " ") return;
-        moshing = false;
-      });
-      return (chunk) => {
-        if (moshing) {
-          decoder.decode(lastChunk || chunk);
-        } else {
-          decoder.decode(chunk);
-          lastChunk = chunk;
-        }
-      };
-    })(),
+    output: (chunk) => {
+      decoder.decode(chunk);
+      prevDecoded = true;
+    },
   });
-  encoder.configure({ codec: "vp8", width, height });
+  prevEncoder.configure({ codec: "vp8", width, height });
+
+  const inEncoder = new VideoEncoder({
+    error: console.error,
+    output: (chunk) => {
+      if (chunk.type === "key" || !prevDecoded) return;
+      decoder.decode(chunk);
+    },
+  });
+  inEncoder.configure({ codec: "vp8", width, height });
+
+  prevCtx.drawImage(img, 0, 0, img.width, img.height, 0, 0, width, height);
+  const prevFrame = new VideoFrame(prevCanvas, {
+    timestamp: performance.now(),
+  });
+  prevEncoder.encode(prevFrame);
+  prevFrame.close();
 
   const loop = () => {
     inCtx.drawImage(video, 0, 0);
     const frame = new VideoFrame(inCanvas, { timestamp: performance.now() });
-    encoder.encode(frame);
+    inEncoder.encode(frame);
     frame.close();
     requestAnimationFrame(loop);
   };
