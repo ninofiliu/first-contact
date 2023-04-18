@@ -1,17 +1,9 @@
-import { height, width } from "../consts";
-import { Emotion } from "../types";
-import x from "../x";
+import { height, width } from "./consts";
+import x from "./x";
 import fragmentSource from "./poly.frag?raw";
 import vertexSource from "./poly.vert?raw";
 
-const elt = document.createElement("div");
-document.body.append(elt);
-const title = document.createElement("h3");
-title.innerHTML = "Poly";
-elt.append(title);
-
 const canvas = document.createElement("canvas");
-elt.append(canvas);
 canvas.width = width;
 canvas.height = height;
 
@@ -55,23 +47,13 @@ gl.bufferData(
   gl.STATIC_DRAW
 );
 
-let stopped = false;
-
-const poly: Emotion = {
-  start(masterCtx) {
-    stopped = false;
-    const loop = () => {
-      if (stopped) return;
-      gl.uniform1f(locations.u_time, performance.now() / 1000);
-      gl.drawArrays(gl.TRIANGLES, 0, 6);
-      masterCtx.drawImage(canvas, 0, 0);
-      requestAnimationFrame(loop);
-    };
-    loop();
-  },
-  stop() {
-    stopped = true;
-  },
+const loop = () => {
+  gl.uniform1f(locations.u_time, performance.now() / 1000);
+  gl.drawArrays(gl.TRIANGLES, 0, 6);
+  requestAnimationFrame(loop);
 };
+loop();
 
-export default poly;
+export const poly = {
+  canvas,
+};
