@@ -4,7 +4,6 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "prepare-files": "echo public/media/**/*.* | fmt -w 0 | colrm 1 6 | jq -R . | jq -s . > src/files.json",
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview"
