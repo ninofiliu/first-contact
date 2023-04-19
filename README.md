@@ -1,49 +1,31 @@
 # First Contact
 
-## About
+> An interactive installation questioning our interpretation of exotic consciousness
 
-Complexity of AI typically goes hand in hand with hierarchy of consciousness:
+First contact with alien civilizations, conversation with artificial intelligences, abstract art analysis: they are all a form of esoteric communication with an entity supposedly conscious which interacts with intent. But what if the impression of consciousness and intent doesn't emerge from the entity we're communicating with, but rather from within ourselves?
 
-1. Perception
-2. Awareness
-3. Sentience
-4. Consciousness
+---
 
-and is also positively correlated with the system's size and correctness.
+On August 6, 1967, Irish astrophycisist Jocelyn Bell Burnell picked up a strange radio signal from outer space: 0.04 second pulses emitted at regular intervals of 1.3373 seconds. At this point of history of astrophysics there was no explanation for such a pheonomenon, and even some scientists believed this to be proof of intelligent extraterrestrial life, mandating the discovery to be kept secret so as not to trigger mass hysteria. The code name for the signal was... LGM-1, standing for "little green men 1".
 
-## Definitions
+The signals were actually caused by an undiscovered family of rapidly rotating neutron starts - pulsars, and the graph that Jocelyn Bell Burnell plotted amusingly made its way into the cover art of Unknown Pleasures by Joy Division.
 
-**Perception**: organization, identification, and interpretation of sensory information in order to represent and understand the presented information or environment.
+But what is interesting about this story is the short moment between the discovery of the radio signals and the explanation of them where most of humanity unconditionally projected ideas of intelligence, sentience, and consciousness onto it. This is actually pretty common in science: there is a never ending list of people seeing either aliens or God's hand in active areas of research like dark matter, string theory, or quantum physics.
 
-**Awareness**: knowing, perceiving and being cognizant of events. In other words, a state where information can be used to impact behavior.
+It seems as if there is something inside of us that can't bear the idea that when an entity communicates with us in a way that is complex yet indecipherable, there is no consciousness behind it. That is based on this observation that _First Contact_ makes sense.
 
-**Sentience**: capacity of a being to experience feelings and sensations
+---
 
-**Consciousness**: sentience and awareness of internal and external existence
+_First Contact_ is an installation where a stream of abtract visuals appears on a screen in front of the spectator, whose picture and voice is being recorded and processed by an artificial intelligence that detects face expression and hands positions. These physical inputs are being fed into a program that analyzes them and makes the video evolves in real time, thereby creating some kind of exotic conversation between the spectator and the machine.
 
-**Qualia (singular: quale)**: individual instances of subjective, conscious experience. The _what it is like_ character of mental state: the way it feels to experience pain, smelling a rose, or seeing red. The "redness" of red is an example of quale. In the words of Daniel Dennett: _an unfamiliar term for something that could not be more familiar to each of us: the ways things seem to us_.
+For example, when the spectator is first see by the machine, its visuals would "awaken", going from slowly evolving dream-like sequences to loops with a faster pace, then slowing down again when the spectator leaves, clearly proving that the machine has _perception_.
 
-**Sapience**: ?
+Some interactions are less direct. If the spectator clenches their first, the visual stream starts expressing angriness, with heavy use of harsh textures, but not when certain words are being spoken, as if the machine not only perceives your physical behavior but is more profoundly aware of you, it is being cognizant about the information it has.
 
-## Perception
+The behavior of the program is not being disclosed to the spectator and is near impossible to reverse-engineer, as it is not the goal of the installation to be fully _understood_, rather it aims at being _felt_: it should be derived from the emotions rather than the intellect that the spectator should feel the machine think. In other words, the goal for the spectator is not to decipher the language of the machine, but rather to feel the existence of a language being spoken.
 
-Saks and John's model of perception:
+In this regard, _First Contact_ is much closer to an abtract work of art rather than systems that attempt to give the illusion of consciousness by being indiscernable from human beings: AI chatbots like ChatGPT in real life, or golem-related sci-fi creatures like Ava in Ex Machina.
 
-- **The perceiver**: person whose awareness is focused on the stimulus. Influenced by:
-  - motivational state
-  - emotional state
-  - experience
-- **The target**: something or someone being perceived
-- **The situation**: environmental factors, timing, and degree of stimulation
+These _imitative AIs_ are pretty hard to engineer, for the simple reason that the human brain is the most complex structure in the uiverse and it's extremely good at many thing, coincidentally being uncanny valley'd by imperfect imitations is one of them, so _First Contact_ doesn't take this road.
 
-## Mind-body problem
-
-- dualism aka cartesian duality: matter - mind
-- monism:
-  - physicalism: matter > mind: the mind consists of matter organized in a particular way
-  - idealism: matter < mind: only thought truly exists and matter is merely a representation of mental processes
-  - neutral monism: matter - matter/mind - mind: both mind and matter are aspects of a distinct essence that is itself identical to neither of them
-
-## References
-
-- [What Is It Like to Be a Bat?](http://www.philosopher.eu/others-writings/nagel-what-is-it-like-to-be-a-bat/)
+The installation is actually much closer to esoteric movies by directors like Lynch who famously refuses to give explanation to his stories, letting the viewer make his own interpretations, because only then would the story make sense - only with characters created by the viewer themself, in other words only with life projected by the viewer onto the work of art, and unintuitively not the other way around.
