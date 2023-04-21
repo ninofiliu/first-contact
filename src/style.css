@@ -3,3 +3,10 @@
   font-family: monospace;
   font-size: 24px;
 }
+body {
+  margin: 0;
+  overflow: hidden;
+}
+canvas {
+  image-rendering: pixelated;
+}

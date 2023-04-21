@@ -3,6 +3,8 @@ import { poly } from "./poly";
 import files from "./files";
 import "./style.css";
 import x from "./x";
+import turbulenz from "./turbulenz";
+import detect from "./detect";
 
 const rPick = <T>(arr: T[]): T => arr[~~(arr.length * Math.random())];
 
@@ -44,10 +46,29 @@ const computeIds = async () => {
   canvas.width = width;
   canvas.height = height;
   const ctx = x(canvas.getContext("2d"));
+  ctx.fillStyle = "black";
+  ctx.fillRect(0, 0, width, height);
 
-  ctx.putImageData(rPick(ids), 0, 0);
-  const loop = () => {
-    ctx.drawImage(poly.canvas, 0, 0);
+  const turbulenzLoop = turbulenz(ctx, ids);
+  const { hasFace } = await detect();
+
+  let emotion: "poly" | "turbulenz" = "poly";
+  document.addEventListener("keypress", (evt) => {
+    if (evt.key === "p") emotion = "poly";
+    if (evt.key === "t") emotion = "turbulenz";
+  });
+
+  const loop = async () => {
+    emotion = (await hasFace()) ? "turbulenz" : "poly";
+    console.log({ emotion });
+    switch (emotion) {
+      case "poly":
+        ctx.drawImage(poly.canvas, 0, 0);
+        break;
+      case "turbulenz":
+        turbulenzLoop();
+        break;
+    }
     requestAnimationFrame(loop);
   };
   loop();

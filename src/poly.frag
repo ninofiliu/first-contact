@@ -32,8 +32,9 @@ vec2 fp(vec2 a) {
 }
 
 vec4 col(vec2 a) {
+  float b = 1.0 / (1.0 + 0.01 * abs(a.y));
   return vec4(1.0 / (1.0 + abs(a.x)), 1.0 / (1.0 + abs(a.y)),
-              1.0 / (1.0 + 0.01 * abs(a.y)), 1.0);
+              b, b>0.1?1.0:0.0);
 }
 
 void main() {

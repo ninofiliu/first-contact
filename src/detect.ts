@@ -25,7 +25,6 @@ const getFingerFlexion = (hand: handPoseDetection.Hand, index: number) => {
 
 export default async () => {
   const canvas = document.createElement("canvas");
-  document.body.append(canvas);
   const ctx = canvas.getContext("2d")!;
   canvas.style.transform = "scaleX(-1)";
 
@@ -53,13 +52,7 @@ export default async () => {
     }
   );
 
-  const logger = document.createElement("pre");
-  document.body.append(logger);
-  const log = (str: string) => {
-    logger.innerHTML = str;
-  };
-
-  const loop = async () => {
+  const debug = async () => {
     ctx.drawImage(video, 0, 0);
 
     for (const face of await faceDetector.estimateFaces(video)) {
@@ -81,20 +74,13 @@ export default async () => {
       for (const { x, y } of hand.keypoints) {
         ctx.fillRect(x - 2, y - 2, 5, 5);
       }
-      const fingerFlexions = Array(5)
-        .fill(null)
-        .map((_, i) => getFingerFlexion(hand, i));
-      const isRock =
-        (fingerFlexions[1] -
-          fingerFlexions[2] -
-          fingerFlexions[3] +
-          fingerFlexions[4]) /
-          4 >
-        0.2;
-      log(isRock ? "ROCK \\m/" : "not rock");
     }
-
-    requestAnimationFrame(loop);
   };
-  loop();
+
+  const hasFace = async () => {
+    const faces = await faceDetector.estimateFaces(video);
+    return !!faces.length;
+  };
+
+  return { debug, hasFace };
 };

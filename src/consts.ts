@@ -1,2 +1,2 @@
-export const width = 640;
-export const height = 480;
+export const width = window.innerWidth;
+export const height = window.innerHeight;
