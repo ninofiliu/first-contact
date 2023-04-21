@@ -82,5 +82,16 @@ export default async () => {
     return !!faces.length;
   };
 
-  return { debug, hasFace };
+  const getClench = async () => {
+    const [hand] = await handPoseDetector.estimateHands(video);
+    if (!hand) return 0;
+    return (
+      Array(5)
+        .fill(null)
+        .map((_, i) => getFingerFlexion(hand, i))
+        .reduce((sum, val) => sum + val, 0) / 5
+    );
+  };
+
+  return { debug, hasFace, getClench };
 };

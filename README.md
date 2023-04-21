@@ -1,6 +1,8 @@
 # First Contact
 
 > An interactive installation questioning our interpretation of exotic consciousness
+>
+> By Nino Filiu. Media: screen, artificial intelligence, live video processing
 
 First contact with alien civilizations, conversation with artificial intelligences, abstract art analysis—these are all forms of esoteric communication with an entity supposedly conscious that interacts with intent. But what if the impression of consciousness and intent doesn't emerge from the entity we're communicating with, but rather from within ourselves?
 
