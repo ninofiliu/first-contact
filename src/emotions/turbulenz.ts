@@ -1,13 +1,13 @@
 import { height, width } from "../consts";
 import rPick from "../rPick";
 
-const force = 4;
+const force = 7;
 
 export const createTurbulenz = (ids: ImageData[]) => {
   let f = 0;
   let map: ImageData;
   return (ctx: CanvasRenderingContext2D) => {
-    if (f % 30 === 0) {
+    if (f % 60 === 0) {
       map = rPick(ids);
     }
     const currentId = ctx.getImageData(0, 0, width, height);

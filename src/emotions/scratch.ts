@@ -1,10 +1,11 @@
 import { height, width } from "../consts";
 import rPick from "../rPick";
 
-const batch = 200;
-const curviness = 4;
-const correctness = 10;
-const stopAt = 0.5;
+const batch = 1000;
+const curviness = 21;
+const correctness = 21;
+const posterize = 5;
+const stopAt = 0.2;
 
 const computePalette = (id: ImageData, nb: number) => {
   const length = id.width * id.height;
@@ -26,7 +27,8 @@ const computePalette = (id: ImageData, nb: number) => {
 };
 
 const stopFn = (light: number, i: number) =>
-  (light * curviness) % 1 < i / correctness;
+  ((Math.floor(light * posterize) / posterize) * curviness) % 1 <
+  i / correctness;
 
 const createMatrix = <T>(fn: (x: number, y: number) => T) =>
   new Array(width)
@@ -37,6 +39,10 @@ let done = false;
 
 const createLoop = (ctx: CanvasRenderingContext2D, id: ImageData) => {
   const palette = computePalette(id, 8);
+  palette[0] = "black";
+  palette[1] = "blue";
+  palette[2] = "#f0f";
+  palette[7] = "white";
 
   const srcR = createMatrix((x, y) => id.data[4 * (width * y + x)] / 256);
   const srcG = createMatrix((x, y) => id.data[4 * (width * y + x) + 1] / 256);
@@ -148,7 +154,6 @@ const createLoop = (ctx: CanvasRenderingContext2D, id: ImageData) => {
 let loop: () => void;
 done = true;
 export default (ctx: CanvasRenderingContext2D, ids: ImageData[]) => {
-  console.log({ done });
   if (done) loop = createLoop(ctx, rPick(ids));
   loop();
 };
