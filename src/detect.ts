@@ -4,6 +4,10 @@ import "@tensorflow/tfjs-backend-webgl";
 import * as faceDetection from "@tensorflow-models/face-detection";
 import * as handPoseDetection from "@tensorflow-models/hand-pose-detection";
 import { Vector3 } from "three";
+import { debug } from "./consts";
+import x from "./x";
+
+const FPS = 30;
 
 const getFingerFlexion = (hand: handPoseDetection.Hand, index: number) => {
   if (!hand.keypoints3D) throw new Error("should detect 3D");
@@ -23,10 +27,17 @@ const getFingerFlexion = (hand: handPoseDetection.Hand, index: number) => {
   return base.dot(top);
 };
 
-export default async () => {
+export const createDetect = async () => {
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d")!;
   canvas.style.transform = "scaleX(-1)";
+  if (debug) {
+    const debugElt = document.createElement("div");
+    debugElt.style.display = "flex";
+    const pre = document.createElement("pre");
+    debugElt.append(canvas, pre);
+    document.body.append(debugElt);
+  }
 
   const stream = await navigator.mediaDevices.getUserMedia({ video: true });
   const video = document.createElement("video");
@@ -52,46 +63,58 @@ export default async () => {
     }
   );
 
-  const debug = async () => {
-    ctx.drawImage(video, 0, 0);
-
-    for (const face of await faceDetector.estimateFaces(video)) {
-      ctx.strokeStyle = "lime";
-      ctx.strokeRect(
-        face.box.xMin,
-        face.box.yMin,
-        face.box.width,
-        face.box.height
-      );
-      ctx.fillStyle = "aqua";
-      for (const { x, y } of face.keypoints) {
-        ctx.fillRect(x - 2, y - 2, 5, 5);
-      }
-    }
-
-    for (const hand of await handPoseDetector.estimateHands(video)) {
-      ctx.fillStyle = "red";
-      for (const { x, y } of hand.keypoints) {
-        ctx.fillRect(x - 2, y - 2, 5, 5);
-      }
-    }
+  const detect = {
+    hasFace: false,
+    hasHands: false,
   };
 
-  const hasFace = async () => {
+  const loop = async () => {
     const faces = await faceDetector.estimateFaces(video);
-    return !!faces.length;
-  };
+    const hands = await handPoseDetector.estimateHands(video);
 
-  const getClench = async () => {
-    const [hand] = await handPoseDetector.estimateHands(video);
-    if (!hand) return 0;
-    return (
-      Array(5)
-        .fill(null)
-        .map((_, i) => getFingerFlexion(hand, i))
-        .reduce((sum, val) => sum + val, 0) / 5
-    );
-  };
+    // debug
+    {
+      ctx.drawImage(video, 0, 0);
 
-  return { debug, hasFace, getClench };
+      for (const face of faces) {
+        ctx.strokeStyle = "lime";
+        ctx.strokeRect(
+          face.box.xMin,
+          face.box.yMin,
+          face.box.width,
+          face.box.height
+        );
+        ctx.fillStyle = "aqua";
+        for (const { x, y } of face.keypoints) {
+          ctx.fillRect(x - 2, y - 2, 5, 5);
+        }
+      }
+
+      for (const hand of hands) {
+        ctx.fillStyle = "red";
+        for (const { x, y } of hand.keypoints) {
+          ctx.fillRect(x - 2, y - 2, 5, 5);
+        }
+      }
+
+      if (debug) {
+        x(document.querySelector("pre")).innerHTML = JSON.stringify(
+          detect,
+          null,
+          2
+        );
+      }
+    }
+
+    // detect
+    {
+      detect.hasFace = !!faces.length;
+      detect.hasHands = !!hands.length;
+    }
+
+    setTimeout(loop, 1000 / FPS);
+  };
+  loop();
+
+  return detect;
 };

@@ -5,7 +5,6 @@
 }
 body {
   margin: 0;
-  overflow: hidden;
 }
 canvas {
   image-rendering: pixelated;

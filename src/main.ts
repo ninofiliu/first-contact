@@ -1,15 +1,10 @@
 import { height, width } from "./consts";
-import { poly } from "./poly";
 import files from "./files";
 import "./style.css";
 import x from "./x";
-import createTurbulenz from "./turbulenz";
-import detect from "./detect";
-import logFps from "./logFps";
+import { createDetect } from "./detect";
 
-logFps();
-
-const rPick = <T>(arr: T[]): T => arr[~~(arr.length * Math.random())];
+// const rPick = <T>(arr: T[]): T => arr[~~(arr.length * Math.random())];
 
 /** For an image of dimensions (w,h) that has to fit in a container of dimensions (dw, dh), computes the cropped rectangle to be displayed and returns it as (sx, sy, sw, sh) */
 const objectFitCover = (w: number, h: number, dw: number, dh: number) => {
@@ -43,6 +38,7 @@ const computeIds = async () => {
 
 (async () => {
   const ids = await computeIds();
+  const detect = await createDetect();
 
   const canvas = document.createElement("canvas");
   document.body.prepend(canvas);
@@ -52,33 +48,33 @@ const computeIds = async () => {
   ctx.fillStyle = "black";
   ctx.fillRect(0, 0, width, height);
 
-  const turbulenz = createTurbulenz(ctx, ids);
-  const { hasFace, getClench } = await detect();
+  // const turbulenz = createTurbulenz(ctx, ids);
+  // const { hasFace, getClench } = await detect();
 
-  let emotion: "poly" | "turbulenz" = "poly";
-  document.addEventListener("keypress", (evt) => {
-    if (evt.key === "p") emotion = "poly";
-    if (evt.key === "t") emotion = "turbulenz";
-  });
+  // let emotion: "poly" | "turbulenz" = "poly";
+  // document.addEventListener("keypress", (evt) => {
+  //   if (evt.key === "p") emotion = "poly";
+  //   if (evt.key === "t") emotion = "turbulenz";
+  // });
 
-  let i = 0;
-  let clench: number;
-  let face: boolean;
-  const loop = async () => {
-    if (i % 10 === 0) {
-      clench = await getClench();
-      face = await hasFace();
-    }
-    if (clench < -0.25 && i % 5 === 0) turbulenz.updateMap();
-    emotion = face ? "turbulenz" : "poly";
+  // let i = 0;
+  // let clench: number;
+  // let face: boolean;
+  // const loop = async () => {
+  //   if (i % 10 === 0) {
+  //     clench = await getClench();
+  //     face = await hasFace();
+  //   }
+  //   if (clench < -0.25 && i % 5 === 0) turbulenz.updateMap();
+  //   emotion = face ? "turbulenz" : "poly";
 
-    if (emotion === "turbulenz" && Math.random() > 0.005) {
-      turbulenz.loop();
-    } else {
-      ctx.drawImage(poly.canvas, 0, 0);
-    }
-    requestAnimationFrame(loop);
-    i++;
-  };
-  loop();
+  //   if (emotion === "turbulenz" && Math.random() > 0.005) {
+  //     turbulenz.loop();
+  //   } else {
+  //     ctx.drawImage(poly.canvas, 0, 0);
+  //   }
+  //   requestAnimationFrame(loop);
+  //   i++;
+  // };
+  // loop();
 })();
