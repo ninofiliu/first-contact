@@ -1,5 +1,5 @@
-import { height, width } from "./consts";
-import x from "./x";
+import { height, width } from "../consts";
+import x from "../x";
 import fragmentSource from "./poly.frag?raw";
 import vertexSource from "./poly.vert?raw";
 

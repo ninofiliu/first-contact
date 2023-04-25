@@ -3,8 +3,9 @@ import files from "./files";
 import "./style.css";
 import x from "./x";
 import { createDetect } from "./detect";
-import poly from "./poly";
-import { createTurbulenz } from "./turbulenz";
+import poly from "./emotions/poly";
+import { createTurbulenz } from "./emotions/turbulenz";
+import logFps from "./logFps";
 
 /** For an image of dimensions (w,h) that has to fit in a container of dimensions (dw, dh), computes the cropped rectangle to be displayed and returns it as (sx, sy, sw, sh) */
 const objectFitCover = (w: number, h: number, dw: number, dh: number) => {
@@ -37,6 +38,7 @@ const computeIds = async () => {
 };
 
 (async () => {
+  logFps();
   const ids = await computeIds();
   const detect = await createDetect();
   const turbulenz = createTurbulenz(ids);

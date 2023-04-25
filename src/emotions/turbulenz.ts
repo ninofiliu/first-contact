@@ -1,5 +1,5 @@
-import { height, width } from "./consts";
-import rPick from "./rPick";
+import { height, width } from "../consts";
+import rPick from "../rPick";
 
 const force = 4;
 
