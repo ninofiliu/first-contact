@@ -1,0 +1,22 @@
+:root {
+  font-family: monospace;
+  font-size: 16px;
+}
+img {
+  width: 100%;
+}
+blockquote {
+  background-color: #030fdb;
+  color: white;
+  margin: 16px 0;
+  padding: 4px 16px;
+}
+h2,
+h3,
+a {
+  color: #030fdb;
+}
+h1 {
+  font-size: 48px;
+  margin: 8px 0;
+}
