@@ -6,6 +6,7 @@ import { createDetect } from "./detect";
 import poly from "./emotions/poly";
 import { createTurbulenz } from "./emotions/turbulenz";
 import logFps from "./logFps";
+import scratch from "./emotions/scratch";
 
 /** For an image of dimensions (w,h) that has to fit in a container of dimensions (dw, dh), computes the cropped rectangle to be displayed and returns it as (sx, sy, sw, sh) */
 const objectFitCover = (w: number, h: number, dw: number, dh: number) => {
@@ -52,10 +53,12 @@ const computeIds = async () => {
   ctx.fillRect(0, 0, width, height);
 
   const loop = () => {
-    if (detect.hasFace) {
-      poly(ctx);
-    } else {
+    if (detect.hasHands) {
+      scratch(ctx, ids);
+    } else if (detect.hasFace) {
       turbulenz(ctx);
+    } else {
+      poly(ctx);
     }
     requestAnimationFrame(loop);
   };

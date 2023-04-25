@@ -1,7 +1,8 @@
-import x from "./x";
+import { height, width } from "../consts";
+import rPick from "../rPick";
 
-const batch = 1000;
-const curviness = 5;
+const batch = 200;
+const curviness = 4;
 const correctness = 10;
 const stopAt = 0.5;
 
@@ -24,27 +25,18 @@ const computePalette = (id: ImageData, nb: number) => {
     );
 };
 
-export default async () => {
-  const canvas = document.createElement("canvas");
-  document.body.append(canvas);
-  const ctx = x(canvas.getContext("2d"));
-  const { width, height } = canvas;
+const stopFn = (light: number, i: number) =>
+  (light * curviness) % 1 < i / correctness;
 
-  const img = document.createElement("img");
-  img.src = "/media/pic.jpg";
-  await img.decode();
-  ctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, width, height);
-  const id = ctx.getImageData(0, 0, width, height);
+const createMatrix = <T>(fn: (x: number, y: number) => T) =>
+  new Array(width)
+    .fill(null)
+    .map((_, x) => new Array(height).fill(null).map((__, y) => fn(x, y)));
 
+let done = false;
+
+const createLoop = (ctx: CanvasRenderingContext2D, id: ImageData) => {
   const palette = computePalette(id, 8);
-
-  const stopFn = (light: number, i: number) =>
-    (light * curviness) % 1 < i / correctness;
-
-  const createMatrix = <T>(fn: (x: number, y: number) => T) =>
-    new Array(width)
-      .fill(null)
-      .map((_, x) => new Array(height).fill(null).map((__, y) => fn(x, y)));
 
   const srcR = createMatrix((x, y) => id.data[4 * (width * y + x)] / 256);
   const srcG = createMatrix((x, y) => id.data[4 * (width * y + x) + 1] / 256);
@@ -88,8 +80,6 @@ export default async () => {
 
   const isInCanvas = ({ x, y }: { x: number; y: number }) =>
     x >= 0 && x < width && y >= 0 && y < height;
-
-  let done = false;
 
   function* spiralPositions(pos: { x: number; y: number }) {
     const spiralPosition = { ...pos };
@@ -139,22 +129,26 @@ export default async () => {
   };
 
   let nbDrawn = 0;
-  let playing = true;
-  const loop = () => {
-    if (done) return;
-    if (!playing) return;
+
+  done = false;
+  return () => {
     if (nbDrawn > width * height * stopAt) {
       done = true;
       return;
     }
-
     for (let i = 0; i < batch; i++) {
       if (done) return;
       move();
       draw();
       nbDrawn++;
     }
-    requestAnimationFrame(loop);
   };
+};
+
+let loop: () => void;
+done = true;
+export default (ctx: CanvasRenderingContext2D, ids: ImageData[]) => {
+  console.log({ done });
+  if (done) loop = createLoop(ctx, rPick(ids));
   loop();
 };
