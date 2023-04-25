@@ -6,6 +6,7 @@ import * as handPoseDetection from "@tensorflow-models/hand-pose-detection";
 import { Vector3 } from "three";
 import { debug } from "./consts";
 import x from "./x";
+import { Detect } from "./types";
 
 const FPS = 30;
 
@@ -63,7 +64,7 @@ export const createDetect = async () => {
     }
   );
 
-  const detect = {
+  const detect: Detect = {
     hasFace: false,
     hasHands: false,
   };
