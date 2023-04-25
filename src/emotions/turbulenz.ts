@@ -3,10 +3,13 @@ import rPick from "../rPick";
 
 const force = 7;
 
-export const createTurbulenz = (ids: ImageData[]) => {
+export const createTurbulenz = (
+  ctx: CanvasRenderingContext2D,
+  ids: ImageData[]
+) => {
   let f = 0;
   let map: ImageData;
-  return (ctx: CanvasRenderingContext2D) => {
+  return () => {
     if (f % 60 === 0) {
       map = rPick(ids);
     }

@@ -153,7 +153,8 @@ const createLoop = (ctx: CanvasRenderingContext2D, id: ImageData) => {
 
 let loop: () => void;
 done = true;
-export default (ctx: CanvasRenderingContext2D, ids: ImageData[]) => {
-  if (done) loop = createLoop(ctx, rPick(ids));
-  loop();
-};
+export const createScratch =
+  (ctx: CanvasRenderingContext2D, ids: ImageData[]) => () => {
+    if (done) loop = createLoop(ctx, rPick(ids));
+    loop();
+  };

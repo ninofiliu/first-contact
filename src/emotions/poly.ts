@@ -47,7 +47,7 @@ gl.bufferData(
   gl.STATIC_DRAW
 );
 
-export default (ctx: CanvasRenderingContext2D) => {
+export const createPoly = (ctx: CanvasRenderingContext2D) => () => {
   gl.uniform1f(locations.u_time, performance.now() / 1000);
   gl.drawArrays(gl.TRIANGLES, 0, 6);
   ctx.drawImage(canvas, 0, 0);
