@@ -6,9 +6,15 @@ import * as handPoseDetection from "@tensorflow-models/hand-pose-detection";
 import { Vector3 } from "three";
 import { debug } from "./consts";
 import x from "./x";
-import { Detect } from "./types";
 
 const FPS = 30;
+
+export const detect = {
+  hasFace: false,
+  hasHands: false,
+  area: 1,
+  isClenched: false,
+};
 
 const getFingerFlexion = (hand: handPoseDetection.Hand, index: number) => {
   if (!hand.keypoints3D) throw new Error("should detect 3D");
@@ -28,7 +34,7 @@ const getFingerFlexion = (hand: handPoseDetection.Hand, index: number) => {
   return base.dot(top);
 };
 
-export const createDetect = async () => {
+export const startDetecting = async () => {
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d")!;
   canvas.style.transform = "scaleX(-1)";
@@ -63,11 +69,6 @@ export const createDetect = async () => {
       modelType: "full",
     }
   );
-
-  const detect: Detect = {
-    hasFace: false,
-    hasHands: false,
-  };
 
   const loop = async () => {
     const faces = await faceDetector.estimateFaces(video);
@@ -109,13 +110,27 @@ export const createDetect = async () => {
 
     // detect
     {
-      detect.hasFace = !!faces.length;
-      detect.hasHands = !!hands.length;
+      const [face] = faces;
+      const [hand] = hands;
+
+      detect.hasFace = !!face;
+      detect.hasHands = !!hand;
+      detect.area = face
+        ? (face.box.width * face.box.height) /
+          (video.videoWidth * video.videoHeight)
+        : 1;
+
+      detect.isClenched = hand
+        ? Array(5)
+            .fill(null)
+            .map((_, i) => getFingerFlexion(hand, i))
+            .reduce((sum, val) => sum + val, 0) /
+            5 <
+          0
+        : false;
     }
 
     setTimeout(loop, 1000 / FPS);
   };
   loop();
-
-  return detect;
 };

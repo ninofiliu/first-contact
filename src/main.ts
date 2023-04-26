@@ -2,7 +2,7 @@ import { height, width } from "./consts";
 import files from "./files";
 import "./style.css";
 import x from "./x";
-import { createDetect } from "./detect";
+import { detect, startDetecting } from "./detect";
 import { createPoly } from "./emotions/poly";
 import { createTurbulenz } from "./emotions/turbulenz";
 import logFps from "./logFps";
@@ -41,7 +41,7 @@ const computeIds = async () => {
 (async () => {
   logFps();
   const ids = await computeIds();
-  const detect = await createDetect();
+  await startDetecting();
 
   const canvas = document.createElement("canvas");
   document.body.prepend(canvas);
@@ -65,6 +65,7 @@ const computeIds = async () => {
     } else {
       poly();
     }
+
     requestAnimationFrame(loop);
   };
   loop();

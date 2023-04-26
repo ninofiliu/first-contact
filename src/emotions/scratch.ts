@@ -1,11 +1,14 @@
 import { height, width } from "../consts";
+import { detect } from "../detect";
 import rPick from "../rPick";
 
-const batch = 1000;
 const curviness = 21;
 const correctness = 21;
 const posterize = 5;
 const stopAt = 0.2;
+
+const hex = (r: number, g: number, b: number) =>
+  `#${[r, g, b].map((v) => v.toString(16).padStart(2, "0")).join("")}`;
 
 const computePalette = (id: ImageData, nb: number) => {
   const length = id.width * id.height;
@@ -20,10 +23,7 @@ const computePalette = (id: ImageData, nb: number) => {
   return Array(nb)
     .fill(null)
     .map((_, i) => sortedBySum[Math.floor((length / nb) * (i + 0.5))])
-    .map(
-      ({ r, g, b }) =>
-        `#${[r, g, b].map((v) => v.toString(16).padStart(2, "0")).join("")}`
-    );
+    .map(({ r, g, b }) => hex(r, g, b));
 };
 
 const stopFn = (light: number, i: number) =>
@@ -38,11 +38,10 @@ const createMatrix = <T>(fn: (x: number, y: number) => T) =>
 let done = false;
 
 const createLoop = (ctx: CanvasRenderingContext2D, id: ImageData) => {
-  const palette = computePalette(id, 8);
-  palette[0] = "black";
-  palette[1] = "blue";
-  palette[2] = "#f0f";
-  palette[7] = "white";
+  const palettes = {
+    image: computePalette(id, 8),
+    red: ["#000", "#000", "#800", "#800", "#f00", "#f00", "#fff", "#fff"],
+  };
 
   const srcR = createMatrix((x, y) => id.data[4 * (width * y + x)] / 256);
   const srcG = createMatrix((x, y) => id.data[4 * (width * y + x) + 1] / 256);
@@ -56,6 +55,7 @@ const createLoop = (ctx: CanvasRenderingContext2D, id: ImageData) => {
   const posB = { x: Math.floor(width / 2), y: Math.floor(height / 2) };
 
   const draw = () => {
+    const palette = detect.isClenched ? palettes.red : palettes.image;
     drawnR[posR.x][posR.y] = true;
     ctx.fillStyle =
       palette[
@@ -142,6 +142,7 @@ const createLoop = (ctx: CanvasRenderingContext2D, id: ImageData) => {
       done = true;
       return;
     }
+    const batch = detect.isClenched ? 5000 : 100;
     for (let i = 0; i < batch; i++) {
       if (done) return;
       move();

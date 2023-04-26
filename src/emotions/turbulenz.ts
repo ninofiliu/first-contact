@@ -1,7 +1,6 @@
 import { height, width } from "../consts";
+import { detect } from "../detect";
 import rPick from "../rPick";
-
-const force = 7;
 
 export const createTurbulenz = (
   ctx: CanvasRenderingContext2D,
@@ -10,9 +9,10 @@ export const createTurbulenz = (
   let f = 0;
   let map: ImageData;
   return () => {
-    if (f % 60 === 0) {
+    if (f % 240 === 0) {
       map = rPick(ids);
     }
+    const force = 40 * detect.area;
     const currentId = ctx.getImageData(0, 0, width, height);
     const nextId = new ImageData(width, height);
     for (let x = 0; x < width; x++) {
