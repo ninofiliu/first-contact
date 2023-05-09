@@ -1,3 +1,10 @@
+import { height, width } from "./consts";
+import { createPoly } from "./emotions/poly";
+import { createScratch } from "./emotions/scratch";
+import { createTurbulenz } from "./emotions/turbulenz";
+import { computeIds } from "./shorts";
+import x from "./x";
+
 const setupAkai = async () => {
   const faders = Array.from({ length: 9 }, () => 0);
   const onPad = new Set<(x: number, y: number) => void>();
@@ -27,5 +34,29 @@ const setupAkai = async () => {
 
 export const live = async () => {
   const akai = await setupAkai();
+  const ids = await computeIds();
+
   akai.onPad.add((x, y) => console.log(x, y, ...akai.faders));
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  document.body.append(canvas);
+  const ctx = x(canvas.getContext("2d"));
+
+  const poly = createPoly(ctx);
+  const scratch = createScratch(ctx, ids);
+  const turbulenz = createTurbulenz(ctx, ids);
+  let emotion = "poly" as "poly" | "turbulenz" | "scratch";
+  akai.onPad.add((x, y) => {
+    if (x === 0 && y === 7) emotion = "poly";
+    if (x === 1 && y === 7) emotion = "turbulenz";
+    if (x === 2 && y === 7) emotion = "scratch";
+  });
+
+  const loop = () => {
+    ({ poly, scratch, turbulenz })[emotion]();
+    requestAnimationFrame(loop);
+  };
+  loop();
 };
