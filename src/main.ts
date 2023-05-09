@@ -7,6 +7,9 @@ import { createPoly } from "./emotions/poly";
 import { createTurbulenz } from "./emotions/turbulenz";
 import logFps from "./logFps";
 import { createScratch } from "./emotions/scratch";
+import { setupRecording } from "./record";
+
+const RECORD = false;
 
 /** For an image of dimensions (w,h) that has to fit in a container of dimensions (dw, dh), computes the cropped rectangle to be displayed and returns it as (sx, sy, sw, sh) */
 const objectFitCover = (w: number, h: number, dw: number, dh: number) => {
@@ -54,6 +57,8 @@ const computeIds = async () => {
   const turbulenz = createTurbulenz(ctx, ids);
   const scratch = createScratch(ctx, ids);
   const poly = createPoly(ctx);
+
+  if (RECORD) setupRecording(canvas);
 
   const loop = () => {
     if (detect.hasFace) {
