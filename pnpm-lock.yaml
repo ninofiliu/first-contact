@@ -30,6 +30,9 @@ devDependencies:
   '@types/three':
     specifier: ^0.150.1
     version: 0.150.1
+  '@types/webmidi':
+    specifier: ^2.0.7
+    version: 2.0.7
   typescript:
     specifier: ^4.9.3
     version: 4.9.3
@@ -360,6 +363,10 @@ packages:
   /@types/webgl-ext@0.0.30:
     resolution: {integrity: sha512-LKVgNmBxN0BbljJrVUwkxwRYqzsAEPcZOe6S2T6ZaBDIrFp0qu4FNlpc5sM1tGbXUYFgdVQIoeLk1Y1UoblyEg==}
     dev: false
+
+  /@types/webmidi@2.0.7:
+    resolution: {integrity: sha512-BMVefNAum/swSmQJdTbRWBuDPeWT7fHAZEzmtY6eBl1ObvkWVzh39VvAFC8v9n7Y5XoOpWmeYzyUUVfmpq3ggQ==}
+    dev: true
 
   /@types/webxr@0.5.1:
     resolution: {integrity: sha512-xlFXPfgJR5vIuDefhaHuUM9uUgvPaXB6GKdXy2gdEh8gBWQZ2ul24AJz3foUd8NNKlSTQuWYJpCb1/pL81m1KQ==}
