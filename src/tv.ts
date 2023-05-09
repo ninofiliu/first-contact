@@ -35,7 +35,7 @@ export const tv = async () => {
       if (detect.hasHands) {
         scratch();
       } else {
-        turbulenz();
+        turbulenz.loop();
       }
     } else {
       poly();

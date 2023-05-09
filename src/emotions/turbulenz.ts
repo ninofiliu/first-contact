@@ -6,13 +6,14 @@ export const createTurbulenz = (
   ctx: CanvasRenderingContext2D,
   ids: ImageData[]
 ) => {
-  let f = 0;
-  let map: ImageData;
-  return () => {
-    if (f % 240 === 0) {
-      map = rPick(ids);
-    }
-    const force = 40 * detect.area;
+  let map = rPick(ids);
+
+  const resetId = () => {
+    map = rPick(ids);
+  };
+
+  const loop = (nForce = 40 * detect.area) => {
+    const force = 40 * nForce;
     const currentId = ctx.getImageData(0, 0, width, height);
     const nextId = new ImageData(width, height);
     for (let x = 0; x < width; x++) {
@@ -29,6 +30,7 @@ export const createTurbulenz = (
       }
     }
     ctx.putImageData(nextId, 0, 0);
-    f++;
   };
+
+  return { resetId, loop };
 };

@@ -48,15 +48,32 @@ export const live = async () => {
   const scratch = createScratch(ctx, ids);
   const turbulenz = createTurbulenz(ctx, ids);
   let emotion = "poly" as "poly" | "turbulenz" | "scratch";
+  let strobe = false;
+  let bw = false;
   akai.onPad.add((x, y) => {
     if (x === 0 && y === 7) emotion = "poly";
-    if (x === 1 && y === 7) emotion = "turbulenz";
+    if (x === 1) {
+      if (y === 7) emotion = "turbulenz";
+      if (y === 6) turbulenz.resetId();
+    }
     if (x === 2 && y === 7) emotion = "scratch";
+    if (x === 7) {
+      if (y === 0) strobe = !strobe;
+      if (y === 1) bw = !bw;
+    }
   });
 
+  let f = 0;
   const loop = () => {
-    ({ poly, scratch, turbulenz })[emotion]();
+    if (emotion === "poly") poly();
+    if (emotion === "scratch") scratch();
+    if (emotion === "turbulenz") turbulenz.loop(akai.faders[1]);
+
+    canvas.style.opacity = strobe ? (f % 5 < 3 ? "0" : "1") : "1";
+    canvas.style.filter = `hue-rotate(${akai.faders[0]}turn)`;
+
     requestAnimationFrame(loop);
+    f++;
   };
   loop();
 };
