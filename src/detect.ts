@@ -46,7 +46,13 @@ export const startDetecting = async () => {
     document.body.append(debugElt);
   }
 
-  const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+  const infos = await navigator.mediaDevices.enumerateDevices();
+  const maybeExternalDeviceId = infos
+    .filter((info) => info.kind === "videoinput")
+    .find((info) => !/integrated/i.test(info.label))?.deviceId;
+  const stream = await navigator.mediaDevices.getUserMedia({
+    video: { deviceId: maybeExternalDeviceId },
+  });
   const video = document.createElement("video");
   video.srcObject = stream;
   await video.play();
