@@ -105,6 +105,7 @@ export const startDetecting = async () => {
   if (DEBUG) {
     const debugElt = document.createElement("div");
     debugElt.style.display = "flex";
+    debugElt.style.alignItems = "flex-start";
     const pre = document.createElement("pre");
     debugElt.append(canvas, pre);
     document.body.append(debugElt);

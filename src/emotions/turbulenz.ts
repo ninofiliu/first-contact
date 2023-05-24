@@ -11,8 +11,7 @@ export const createTurbulenz = (
     map = rPick(ids);
   };
 
-  // const loop = (nForce = 40 * detected.area) => {
-  const loop = (nForce = 40 * 1) => {
+  const loop = (nForce: number) => {
     const force = 40 * nForce;
     const currentId = ctx.getImageData(0, 0, WIDTH, HEIGHT);
     const nextId = new ImageData(WIDTH, HEIGHT);

@@ -8,6 +8,7 @@ import logFps from "./logFps";
 import { createScratch } from "./emotions/scratch";
 import { setupRecording } from "./record";
 import { computeIds } from "./shorts";
+import { mapLinear } from "three/src/math/MathUtils";
 
 const RECORD = false;
 
@@ -47,20 +48,36 @@ export const tv = async () => {
 
   if (RECORD) setupRecording(canvas);
 
+  let f = 0;
   const loop = () => {
-    ctx.clearRect(0, 0, WIDTH, HEIGHT);
+    if (detected.right.here) {
+      const val = mapLinear(
+        detected.right.orientation,
+        -Math.PI / 2,
+        Math.PI / 2,
+        0,
+        1
+      );
+      turbulenz.loop(val * 0.5);
+      ctx.canvas.style.filter = `hue-rotate(${(1 - val) * 0.2}turn)`;
+      if (detected.left.here) {
+        const nb = detected.left.fingers.filter((x) => x).length;
+        if (nb === 0) {
+          poly();
+        } else {
+          if (f % [1, 4, 16, 64, 256][nb] === 0) turbulenz.resetId();
+        }
+      }
+    } else {
+      if (detected.left.here) {
+        scratch();
+      } else {
+        poly();
+      }
+    }
     prettyDebug(ctx);
-    // if (detected.hasFace) {
-    //   if (detected.hasHands) {
-    //     scratch();
-    //   } else {
-    //     turbulenz.loop();
-    //   }
-    // } else {
-    //   poly();
-    // }
-
     requestAnimationFrame(loop);
+    f++;
   };
   loop();
 };
