@@ -11,6 +11,23 @@ import { computeIds } from "./shorts";
 
 const RECORD = false;
 
+const prettyDebug = (ctx: CanvasRenderingContext2D) => {
+  const s = HEIGHT / 6;
+  ctx.fillStyle = "red";
+  for (const { hand, x } of [
+    { hand: detected.left, x: s },
+    { hand: detected.right, x: WIDTH - s },
+  ]) {
+    if (hand.here) {
+      for (let i = 0; i < 5; i++) {
+        if (hand.fingers[i]) {
+          ctx.fillRect(x, (i + 1) * s, s * 0.3, s * 0.3);
+        }
+      }
+    }
+  }
+};
+
 export const tv = async () => {
   logFps();
   const ids = await computeIds();
@@ -31,15 +48,17 @@ export const tv = async () => {
   if (RECORD) setupRecording(canvas);
 
   const loop = () => {
-    if (detected.hasFace) {
-      if (detected.hasHands) {
-        scratch();
-      } else {
-        turbulenz.loop();
-      }
-    } else {
-      poly();
-    }
+    ctx.clearRect(0, 0, WIDTH, HEIGHT);
+    prettyDebug(ctx);
+    // if (detected.hasFace) {
+    //   if (detected.hasHands) {
+    //     scratch();
+    //   } else {
+    //     turbulenz.loop();
+    //   }
+    // } else {
+    //   poly();
+    // }
 
     requestAnimationFrame(loop);
   };
