@@ -1,4 +1,4 @@
-import { height, width } from "../consts";
+import { HEIGHT, WIDTH } from "../consts";
 import { detect } from "../detect";
 import rPick from "../rPick";
 
@@ -31,9 +31,9 @@ const stopFn = (light: number, i: number) =>
   i / correctness;
 
 const createMatrix = <T>(fn: (x: number, y: number) => T) =>
-  new Array(width)
+  new Array(WIDTH)
     .fill(null)
-    .map((_, x) => new Array(height).fill(null).map((__, y) => fn(x, y)));
+    .map((_, x) => new Array(HEIGHT).fill(null).map((__, y) => fn(x, y)));
 
 let done = false;
 
@@ -43,16 +43,16 @@ const createLoop = (ctx: CanvasRenderingContext2D, id: ImageData) => {
     red: ["#000", "#000", "#800", "#800", "#f00", "#f00", "#fff", "#fff"],
   };
 
-  const srcR = createMatrix((x, y) => id.data[4 * (width * y + x)] / 256);
-  const srcG = createMatrix((x, y) => id.data[4 * (width * y + x) + 1] / 256);
-  const srcB = createMatrix((x, y) => id.data[4 * (width * y + x) + 2] / 256);
+  const srcR = createMatrix((x, y) => id.data[4 * (WIDTH * y + x)] / 256);
+  const srcG = createMatrix((x, y) => id.data[4 * (WIDTH * y + x) + 1] / 256);
+  const srcB = createMatrix((x, y) => id.data[4 * (WIDTH * y + x) + 2] / 256);
   const drawnR = createMatrix(() => false);
   const drawnG = createMatrix(() => false);
   const drawnB = createMatrix(() => false);
 
-  const posR = { x: Math.floor(width / 2), y: Math.floor(height / 2) };
-  const posG = { x: Math.floor(width / 2), y: Math.floor(height / 2) };
-  const posB = { x: Math.floor(width / 2), y: Math.floor(height / 2) };
+  const posR = { x: Math.floor(WIDTH / 2), y: Math.floor(HEIGHT / 2) };
+  const posG = { x: Math.floor(WIDTH / 2), y: Math.floor(HEIGHT / 2) };
+  const posB = { x: Math.floor(WIDTH / 2), y: Math.floor(HEIGHT / 2) };
 
   const draw = () => {
     const palette = detect.isClenched ? palettes.red : palettes.image;
@@ -85,11 +85,11 @@ const createLoop = (ctx: CanvasRenderingContext2D, id: ImageData) => {
   };
 
   const isInCanvas = ({ x, y }: { x: number; y: number }) =>
-    x >= 0 && x < width && y >= 0 && y < height;
+    x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT;
 
   function* spiralPositions(pos: { x: number; y: number }) {
     const spiralPosition = { ...pos };
-    for (let l = 1; l < Math.max(width, height); l += 2) {
+    for (let l = 1; l < Math.max(WIDTH, HEIGHT); l += 2) {
       for (let i = 0; i < l; i++) {
         spiralPosition.x++;
         if (isInCanvas(spiralPosition)) yield spiralPosition;
@@ -138,7 +138,7 @@ const createLoop = (ctx: CanvasRenderingContext2D, id: ImageData) => {
 
   done = false;
   return () => {
-    if (nbDrawn > width * height * stopAt) {
+    if (nbDrawn > WIDTH * HEIGHT * stopAt) {
       done = true;
       return;
     }

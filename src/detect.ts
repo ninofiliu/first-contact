@@ -4,7 +4,7 @@ import "@tensorflow/tfjs-backend-webgl";
 import * as faceDetection from "@tensorflow-models/face-detection";
 import * as handPoseDetection from "@tensorflow-models/hand-pose-detection";
 import { Vector3 } from "three";
-import { debug } from "./consts";
+import { DEBUG } from "./consts";
 import x from "./x";
 
 const FPS = 30;
@@ -38,7 +38,7 @@ export const startDetecting = async () => {
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d")!;
   canvas.style.transform = "scaleX(-1)";
-  if (debug) {
+  if (DEBUG) {
     const debugElt = document.createElement("div");
     debugElt.style.display = "flex";
     const pre = document.createElement("pre");
@@ -105,7 +105,7 @@ export const startDetecting = async () => {
         }
       }
 
-      if (debug) {
+      if (DEBUG) {
         x(document.querySelector("pre")).innerHTML = JSON.stringify(
           detect,
           null,

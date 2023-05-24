@@ -1,4 +1,4 @@
-import { height, width } from "./consts";
+import { HEIGHT, WIDTH } from "./consts";
 import files from "./files";
 import x from "./x";
 
@@ -10,8 +10,8 @@ const objectFitCover = (w: number, h: number, dw: number, dh: number) => {
 
 export const computeIds = async () => {
   const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
+  canvas.width = WIDTH;
+  canvas.height = HEIGHT;
   const ctx = x(canvas.getContext("2d"));
 
   return Promise.all(
@@ -21,13 +21,13 @@ export const computeIds = async () => {
       await img.decode();
       ctx.drawImage(
         img,
-        ...objectFitCover(img.width, img.height, width, height),
+        ...objectFitCover(img.width, img.height, WIDTH, HEIGHT),
         0,
         0,
-        width,
-        height
+        WIDTH,
+        HEIGHT
       );
-      return ctx.getImageData(0, 0, width, height);
+      return ctx.getImageData(0, 0, WIDTH, HEIGHT);
     })
   );
 };

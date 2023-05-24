@@ -1,11 +1,11 @@
-import { height, width } from "../consts";
+import { HEIGHT, WIDTH } from "../consts";
 import x from "../x";
 import fragmentSource from "./poly.frag?raw";
 import vertexSource from "./poly.vert?raw";
 
 const canvas = document.createElement("canvas");
-canvas.width = width;
-canvas.height = height;
+canvas.width = WIDTH;
+canvas.height = HEIGHT;
 
 const gl = x(canvas.getContext("webgl2"));
 

@@ -1,4 +1,4 @@
-import { height, width } from "./consts";
+import { HEIGHT, WIDTH } from "./consts";
 import { createPoly } from "./emotions/poly";
 import { createScratch } from "./emotions/scratch";
 import { createTurbulenz } from "./emotions/turbulenz";
@@ -39,8 +39,8 @@ export const live = async () => {
   akai.onPad.add((x, y) => console.log(x, y, ...akai.faders));
 
   const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
+  canvas.width = WIDTH;
+  canvas.height = HEIGHT;
   document.body.append(canvas);
   const ctx = x(canvas.getContext("2d"));
 

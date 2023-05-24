@@ -1,4 +1,4 @@
-import { height, width } from "./consts";
+import { HEIGHT, WIDTH } from "./consts";
 import "./style.css";
 import x from "./x";
 import { detect, startDetecting } from "./detect";
@@ -18,11 +18,11 @@ export const tv = async () => {
 
   const canvas = document.createElement("canvas");
   document.body.prepend(canvas);
-  canvas.width = width;
-  canvas.height = height;
+  canvas.width = WIDTH;
+  canvas.height = HEIGHT;
   const ctx = x(canvas.getContext("2d"));
   ctx.fillStyle = "black";
-  ctx.fillRect(0, 0, width, height);
+  ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
   const turbulenz = createTurbulenz(ctx, ids);
   const scratch = createScratch(ctx, ids);
