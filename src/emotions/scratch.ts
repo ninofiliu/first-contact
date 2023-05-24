@@ -1,5 +1,4 @@
 import { HEIGHT, WIDTH } from "../consts";
-import { detect } from "../detect";
 import rPick from "../rPick";
 
 const curviness = 21;
@@ -55,7 +54,8 @@ const createLoop = (ctx: CanvasRenderingContext2D, id: ImageData) => {
   const posB = { x: Math.floor(WIDTH / 2), y: Math.floor(HEIGHT / 2) };
 
   const draw = () => {
-    const palette = detect.isClenched ? palettes.red : palettes.image;
+    // const palette = detected.isClenched ? palettes.red : palettes.image;
+    const palette = true ? palettes.red : palettes.image;
     drawnR[posR.x][posR.y] = true;
     ctx.fillStyle =
       palette[
@@ -142,7 +142,8 @@ const createLoop = (ctx: CanvasRenderingContext2D, id: ImageData) => {
       done = true;
       return;
     }
-    const batch = detect.isClenched ? 5000 : 100;
+    // const batch = detected.isClenched ? 5000 : 100;
+    const batch = true ? 5000 : 100;
     for (let i = 0; i < batch; i++) {
       if (done) return;
       move();

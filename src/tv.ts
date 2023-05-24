@@ -1,7 +1,7 @@
 import { HEIGHT, WIDTH } from "./consts";
 import "./style.css";
 import x from "./x";
-import { detect, startDetecting } from "./detect";
+import { detected, startDetecting } from "./detect";
 import { createPoly } from "./emotions/poly";
 import { createTurbulenz } from "./emotions/turbulenz";
 import logFps from "./logFps";
@@ -31,8 +31,8 @@ export const tv = async () => {
   if (RECORD) setupRecording(canvas);
 
   const loop = () => {
-    if (detect.hasFace) {
-      if (detect.hasHands) {
+    if (detected.hasFace) {
+      if (detected.hasHands) {
         scratch();
       } else {
         turbulenz.loop();

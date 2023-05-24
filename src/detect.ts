@@ -3,17 +3,40 @@ import "@tensorflow/tfjs-core";
 import "@tensorflow/tfjs-backend-webgl";
 import * as faceDetection from "@tensorflow-models/face-detection";
 import * as handPoseDetection from "@tensorflow-models/hand-pose-detection";
-import { Vector3 } from "three";
+import { Triangle, Vector3 } from "three";
 import { DEBUG } from "./consts";
 import x from "./x";
 
 const FPS = 30;
 
-export const detect = {
-  hasFace: false,
-  hasHands: false,
-  area: 1,
-  isClenched: false,
+type DetectedFace = {
+  here: boolean;
+};
+
+type DetectedHand = {
+  here: boolean;
+  orientation: number;
+  fingers: boolean[];
+};
+
+type Detected = {
+  face: DetectedFace;
+  left: DetectedHand;
+  right: DetectedHand;
+};
+
+export const detected: Detected = {
+  face: { here: false },
+  left: {
+    here: false,
+    orientation: 0,
+    fingers: Array(5).fill(false),
+  },
+  right: {
+    here: false,
+    orientation: 0,
+    fingers: Array(5).fill(false),
+  },
 };
 
 const getFingerFlexion = (hand: handPoseDetection.Hand, index: number) => {
@@ -33,6 +56,47 @@ const getFingerFlexion = (hand: handPoseDetection.Hand, index: number) => {
 
   return base.dot(top);
 };
+
+const getHandorientation = (hand: handPoseDetection.Hand) => {
+  const triangle = new Triangle(
+    new Vector3(
+      hand.keypoints3D![0].x,
+      hand.keypoints3D![0].y,
+      hand.keypoints3D![0].z
+    ),
+    new Vector3(
+      hand.keypoints3D![17].x,
+      hand.keypoints3D![17].y,
+      hand.keypoints3D![17].z
+    ),
+    new Vector3(
+      hand.keypoints3D![5].x,
+      hand.keypoints3D![5].y,
+      hand.keypoints3D![5].z
+    )
+  );
+  const normal = new Vector3();
+  triangle.getNormal(normal);
+  return normal.z;
+};
+
+const getDetectedHand = (
+  hand: handPoseDetection.Hand | undefined
+): DetectedHand =>
+  hand
+    ? {
+        here: true,
+        orientation: getHandorientation(hand),
+        fingers: Array.from(
+          { length: 5 },
+          (_, i) => getFingerFlexion(hand, i) > 0.4
+        ),
+      }
+    : {
+        here: false,
+        orientation: 0,
+        fingers: Array(5).fill(false),
+      };
 
 export const startDetecting = async () => {
   const canvas = document.createElement("canvas");
@@ -107,7 +171,7 @@ export const startDetecting = async () => {
 
       if (DEBUG) {
         x(document.querySelector("pre")).innerHTML = JSON.stringify(
-          detect,
+          detected,
           null,
           2
         );
@@ -116,24 +180,10 @@ export const startDetecting = async () => {
 
     // detect
     {
-      const [face] = faces;
-      const [hand] = hands;
-
-      detect.hasFace = !!face;
-      detect.hasHands = !!hand;
-      detect.area = face
-        ? (face.box.width * face.box.height) /
-          (video.videoWidth * video.videoHeight)
-        : 1;
-
-      detect.isClenched = hand
-        ? Array(5)
-            .fill(null)
-            .map((_, i) => getFingerFlexion(hand, i))
-            .reduce((sum, val) => sum + val, 0) /
-            5 <
-          0
-        : false;
+      const left = hands.find((hand) => hand.handedness === "Right");
+      detected.left = getDetectedHand(left);
+      const right = hands.find((hand) => hand.handedness === "Left");
+      detected.right = getDetectedHand(right);
     }
 
     setTimeout(loop, 1000 / FPS);

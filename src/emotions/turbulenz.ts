@@ -1,5 +1,4 @@
 import { HEIGHT, WIDTH } from "../consts";
-import { detect } from "../detect";
 import rPick from "../rPick";
 
 export const createTurbulenz = (
@@ -12,7 +11,8 @@ export const createTurbulenz = (
     map = rPick(ids);
   };
 
-  const loop = (nForce = 40 * detect.area) => {
+  // const loop = (nForce = 40 * detected.area) => {
+  const loop = (nForce = 40 * 1) => {
     const force = 40 * nForce;
     const currentId = ctx.getImageData(0, 0, WIDTH, HEIGHT);
     const nextId = new ImageData(WIDTH, HEIGHT);

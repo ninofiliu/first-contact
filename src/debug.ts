@@ -1,1 +1,5 @@
-export const debug = () => {};
+import { startDetecting } from "./detect";
+
+export const debug = async () => {
+  await startDetecting();
+};
