@@ -173,6 +173,8 @@ export const startDetecting = async () => {
 
     // detect
     {
+      Object.assign(oldDetected, structuredClone(detected));
+
       const left = hands.find((hand) => hand.handedness === "Right");
       detected.left = getDetectedHand(left);
       const right = hands.find((hand) => hand.handedness === "Left");

@@ -1,6 +1,9 @@
 import { HEIGHT, WIDTH } from "../consts";
 import rPick from "../rPick";
 
+type PaletteName = "image" | "grey" | "poly";
+type Loop = (paletteName: PaletteName, batch: number) => void;
+
 const curviness = 21;
 const correctness = 21;
 const posterize = 5;
@@ -36,10 +39,20 @@ const createMatrix = <T>(fn: (x: number, y: number) => T) =>
 
 let done = false;
 
-const createLoop = (ctx: CanvasRenderingContext2D, id: ImageData) => {
-  const palettes = {
+const createLoop = (ctx: CanvasRenderingContext2D, id: ImageData): Loop => {
+  const palettes: Record<PaletteName, string[]> = {
     image: computePalette(id, 8),
-    red: ["#000", "#000", "#800", "#800", "#f00", "#f00", "#fff", "#fff"],
+    grey: ["#000", "#111", "#222", "#444", "#888", "#fff", "#fff", "#fff"],
+    poly: [
+      "black",
+      "darkblue",
+      "navy",
+      "blue",
+      "cyan",
+      "magenta",
+      "violet",
+      "white",
+    ],
   };
 
   const srcR = createMatrix((x, y) => id.data[4 * (WIDTH * y + x)] / 256);
@@ -53,9 +66,8 @@ const createLoop = (ctx: CanvasRenderingContext2D, id: ImageData) => {
   const posG = { x: Math.floor(WIDTH / 2), y: Math.floor(HEIGHT / 2) };
   const posB = { x: Math.floor(WIDTH / 2), y: Math.floor(HEIGHT / 2) };
 
-  const draw = () => {
-    // const palette = detected.isClenched ? palettes.red : palettes.image;
-    const palette = false ? palettes.red : palettes.image;
+  const draw = (paletteName: keyof typeof palettes) => {
+    const palette = palettes[paletteName];
     drawnR[posR.x][posR.y] = true;
     ctx.fillStyle =
       palette[
@@ -137,26 +149,25 @@ const createLoop = (ctx: CanvasRenderingContext2D, id: ImageData) => {
   let nbDrawn = 0;
 
   done = false;
-  return () => {
+  return (paletteName, batch) => {
     if (nbDrawn > WIDTH * HEIGHT * stopAt) {
       done = true;
       return;
     }
-    // const batch = detected.isClenched ? 5000 : 100;
-    const batch = 1000;
     for (let i = 0; i < batch; i++) {
       if (done) return;
       move();
-      draw();
+      draw(paletteName);
       nbDrawn++;
     }
   };
 };
 
-let loop: () => void;
+let loop: Loop;
 done = true;
 export const createScratch =
-  (ctx: CanvasRenderingContext2D, ids: ImageData[]) => () => {
+  (ctx: CanvasRenderingContext2D, ids: ImageData[]): Loop =>
+  (paletteName, batch) => {
     if (done) loop = createLoop(ctx, rPick(ids));
-    loop();
+    loop(paletteName, batch);
   };

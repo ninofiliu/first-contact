@@ -1,14 +1,14 @@
 import { HEIGHT, WIDTH } from "./consts";
 import "./style.css";
 import x from "./x";
-import { detected, oldDetected, startDetecting } from "./detect";
+import { detected, startDetecting } from "./detect";
 import { createPoly } from "./emotions/poly";
 import { createTurbulenz } from "./emotions/turbulenz";
 import logFps from "./logFps";
 import { createScratch } from "./emotions/scratch";
 import { setupRecording } from "./record";
 import { computeIds } from "./shorts";
-import { clamp, mapLinear } from "three/src/math/MathUtils";
+import { mapLinear } from "three/src/math/MathUtils";
 
 const RECORD = false;
 
@@ -50,28 +50,31 @@ export const tv = async () => {
 
   let f = 0;
   const loop = () => {
-    if (detected.face.here) {
-      if (detected.right.here) {
-        const force = clamp(
-          mapLinear(detected.right.orientation, 0.95, -1, 0, 1),
-          0,
-          1
-        );
-        turbulenz.loop(force);
-        if (oldDetected.nb !== detected.nb) {
-          turbulenz.resetId();
-        }
-      } else {
-        if (detected.left.here) {
-          scratch("poly", 1000);
+    if (detected.right.here) {
+      const val = mapLinear(
+        detected.right.orientation,
+        -Math.PI / 2,
+        Math.PI / 2,
+        0,
+        1
+      );
+      turbulenz.loop(val * 0.5);
+      ctx.canvas.style.filter = `hue-rotate(${(1 - val) * 0.2}turn)`;
+      if (detected.left.here) {
+        const nb = detected.left.fingers.filter((x) => x).length;
+        if (nb === 0) {
+          poly();
         } else {
-          scratch("grey", 250);
+          if (f % [1, 4, 16, 64, 256][nb] === 0) turbulenz.resetId();
         }
       }
     } else {
-      poly();
+      if (detected.left.here) {
+        scratch();
+      } else {
+        poly();
+      }
     }
-
     prettyDebug(ctx);
     requestAnimationFrame(loop);
     f++;
