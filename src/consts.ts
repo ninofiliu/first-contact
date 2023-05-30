@@ -1,3 +1,3 @@
-export const DEBUG = false;
-export const WIDTH = DEBUG ? 960 : window.innerWidth;
-export const HEIGHT = DEBUG ? 540 : window.innerHeight;
+export const DEBUG = true;
+export const WIDTH = DEBUG ? 640 : window.innerWidth;
+export const HEIGHT = DEBUG ? 480 : window.innerHeight;

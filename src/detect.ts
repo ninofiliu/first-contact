@@ -5,7 +5,6 @@ import * as faceDetection from "@tensorflow-models/face-detection";
 import * as handPoseDetection from "@tensorflow-models/hand-pose-detection";
 import { Triangle, Vector3 } from "three";
 import { DEBUG } from "./consts";
-import x from "./x";
 
 const FPS = 30;
 
@@ -23,20 +22,22 @@ type Detected = {
   face: DetectedFace;
   left: DetectedHand;
   right: DetectedHand;
+  nb: number;
+  nbJustChanged: boolean;
 };
+
+const getDefaultDetectedHand = (): DetectedHand => ({
+  here: false,
+  orientation: 0,
+  fingers: Array(5).fill(false),
+});
 
 export const detected: Detected = {
   face: { here: false },
-  left: {
-    here: false,
-    orientation: 0,
-    fingers: Array(5).fill(false),
-  },
-  right: {
-    here: false,
-    orientation: 0,
-    fingers: Array(5).fill(false),
-  },
+  left: getDefaultDetectedHand(),
+  right: getDefaultDetectedHand(),
+  nb: 0,
+  nbJustChanged: false,
 };
 
 const getFingerFlexion = (hand: handPoseDetection.Hand, index: number) => {
@@ -92,11 +93,7 @@ const getDetectedHand = (
           (_, i) => getFingerFlexion(hand, i) > 0.4
         ),
       }
-    : {
-        here: false,
-        orientation: 0,
-        fingers: Array(5).fill(false),
-      };
+    : getDefaultDetectedHand();
 
 export const startDetecting = async () => {
   const canvas = document.createElement("canvas");
@@ -106,9 +103,6 @@ export const startDetecting = async () => {
     const debugElt = document.createElement("div");
     debugElt.style.display = "flex";
     debugElt.style.alignItems = "flex-start";
-    const pre = document.createElement("pre");
-    debugElt.append(canvas, pre);
-    document.body.append(debugElt);
   }
 
   const infos = await navigator.mediaDevices.enumerateDevices();
@@ -123,6 +117,10 @@ export const startDetecting = async () => {
   await video.play();
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
+
+  if (DEBUG) {
+    document.body.append(canvas);
+  }
 
   const faceDetector = await faceDetection.createDetector(
     faceDetection.SupportedModels.MediaPipeFaceDetector,
@@ -169,14 +167,6 @@ export const startDetecting = async () => {
           ctx.fillRect(x - 2, y - 2, 5, 5);
         }
       }
-
-      if (DEBUG) {
-        x(document.querySelector("pre")).innerHTML = JSON.stringify(
-          detected,
-          null,
-          2
-        );
-      }
     }
 
     // detect
@@ -185,6 +175,11 @@ export const startDetecting = async () => {
       detected.left = getDetectedHand(left);
       const right = hands.find((hand) => hand.handedness === "Left");
       detected.right = getDetectedHand(right);
+      const newNb =
+        detected.left.fingers.filter((x) => x).length +
+        detected.right.fingers.filter((x) => x).length;
+      detected.nbJustChanged = newNb != detected.nb;
+      detected.nb = newNb;
     }
 
     setTimeout(loop, 1000 / FPS);
