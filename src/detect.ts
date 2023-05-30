@@ -5,11 +5,13 @@ import * as faceDetection from "@tensorflow-models/face-detection";
 import * as handPoseDetection from "@tensorflow-models/hand-pose-detection";
 import { Triangle, Vector3 } from "three";
 import { DEBUG } from "./consts";
+import x from "./x";
 
 const FPS = 30;
 
 type DetectedFace = {
   here: boolean;
+  dir: "left" | "right" | "none";
 };
 
 type DetectedHand = {
@@ -23,7 +25,6 @@ type Detected = {
   left: DetectedHand;
   right: DetectedHand;
   nb: number;
-  nbJustChanged: boolean;
 };
 
 const getDefaultDetectedHand = (): DetectedHand => ({
@@ -33,12 +34,13 @@ const getDefaultDetectedHand = (): DetectedHand => ({
 });
 
 export const detected: Detected = {
-  face: { here: false },
+  face: { here: false, dir: "none" },
   left: getDefaultDetectedHand(),
   right: getDefaultDetectedHand(),
   nb: 0,
-  nbJustChanged: false,
 };
+
+export const oldDetected: Detected = structuredClone(detected);
 
 const getFingerFlexion = (hand: handPoseDetection.Hand, index: number) => {
   if (!hand.keypoints3D) throw new Error("should detect 3D");
@@ -175,11 +177,22 @@ export const startDetecting = async () => {
       detected.left = getDetectedHand(left);
       const right = hands.find((hand) => hand.handedness === "Left");
       detected.right = getDetectedHand(right);
-      const newNb =
+      detected.nb =
         detected.left.fingers.filter((x) => x).length +
         detected.right.fingers.filter((x) => x).length;
-      detected.nbJustChanged = newNb != detected.nb;
-      detected.nb = newNb;
+
+      const [face] = faces;
+      if (face) {
+        detected.face.here = true;
+        detected.face.dir =
+          x(face.keypoints.find((x) => x.name === "noseTip")).x -
+            face.box.xMin <
+          face.box.width / 2
+            ? "right"
+            : "left";
+      } else {
+        detected.face = { here: false, dir: "none" };
+      }
     }
 
     setTimeout(loop, 1000 / FPS);
