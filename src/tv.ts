@@ -25,6 +25,8 @@ export const tv = async () => {
   canvas.height = HEIGHT;
   const ctx = x(canvas.getContext("2d"));
   ctx.fillStyle = "black";
+  ctx.strokeStyle = "red";
+  ctx.lineWidth = 1;
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
   const overlayCanvas = document.createElement("canvas");
@@ -63,13 +65,14 @@ export const tv = async () => {
       }
     } else {
       if (detected.left.here) {
-        if (detected.face) {
-          scratch("grey", 1000);
-        } else {
-          canvas.style.opacity = ["0", "1"][~~(f / 5) % 2];
-        }
+        // TODO
+        scratch("grey", 1000);
       } else {
-        poly();
+        if (detected.face) {
+          turbulenz.loop(0.2);
+        } else {
+          poly();
+        }
       }
     }
 
@@ -112,17 +115,26 @@ export const tv = async () => {
           x: x * WIDTH,
           y: y * HEIGHT,
         }));
-        const strokeLine = (i: number, j: number) => {
-          overlay.beginPath();
-          overlay.moveTo(ps[i].x, ps[i].y);
-          overlay.lineTo(ps[j].x, ps[j].y);
-          overlay.stroke();
-        };
-        strokeLine(2, 3);
-        strokeLine(2, 0);
-        strokeLine(2, 1);
-        strokeLine(3, 4);
-        strokeLine(3, 5);
+
+        {
+          /* lineface */
+          // const strokeLine = (i: number, j: number) => {
+          //   overlay.beginPath();
+          //   overlay.moveTo(ps[i].x, ps[i].y);
+          //   overlay.lineTo(ps[j].x, ps[j].y);
+          //   overlay.stroke();
+          // };
+          // strokeLine(2, 3);
+          // strokeLine(2, 0);
+          // strokeLine(2, 1);
+          // strokeLine(3, 4);
+          // strokeLine(3, 5);
+        }
+
+        ctx.fillStyle = ["red", "purple"][~~(f / 5) % 2];
+        for (const { x, y } of ps) {
+          ctx.fillRect(x - 2, y - 2, 5, 5);
+        }
       }
     }
 

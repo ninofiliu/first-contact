@@ -201,7 +201,7 @@ export const startDetecting = async () => {
             : "left",
         points: oldDetected.face
           ? newPoints.map(({ x: newX, y: newY }, i) => {
-              const SMOOTH = 0.8;
+              const SMOOTH = 0.2;
               const { x: oldX, y: oldY } = oldDetected.face!.points[i];
               return {
                 x: SMOOTH * oldX + (1 - SMOOTH) * newX,
