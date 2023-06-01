@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { HEIGHT, WIDTH } from "./consts";
 import "./style.css";
 import x from "./x";

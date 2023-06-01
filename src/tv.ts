@@ -12,35 +12,32 @@ import { clamp, mapLinear } from "three/src/math/MathUtils";
 
 const RECORD = false;
 
-const prettyDebug = (ctx: CanvasRenderingContext2D) => {
-  const s = HEIGHT / 6;
-  ctx.fillStyle = "red";
-  for (const { hand, x } of [
-    { hand: detected.left, x: s },
-    { hand: detected.right, x: WIDTH - s },
-  ]) {
-    if (hand.here) {
-      for (let i = 0; i < 5; i++) {
-        if (hand.fingers[i]) {
-          ctx.fillRect(x, (i + 1) * s, s * 0.3, s * 0.3);
-        }
-      }
-    }
-  }
-};
-
 export const tv = async () => {
   logFps();
   const ids = await computeIds();
   await startDetecting();
 
   const canvas = document.createElement("canvas");
-  document.body.prepend(canvas);
+  canvas.style.position = "absolute";
+  document.body.append(canvas);
+
   canvas.width = WIDTH;
   canvas.height = HEIGHT;
   const ctx = x(canvas.getContext("2d"));
   ctx.fillStyle = "black";
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+  const overlayCanvas = document.createElement("canvas");
+  overlayCanvas.style.position = "absolute";
+  overlayCanvas.style.filter =
+    "drop-shadow(0 0 3px black) drop-shadow(0 0 6px grey)";
+  overlayCanvas.width = WIDTH;
+  overlayCanvas.height = HEIGHT;
+  document.body.append(overlayCanvas);
+
+  const overlay = x(overlayCanvas.getContext("2d"));
+  overlay.strokeStyle = "white";
+  overlay.lineWidth = 5;
 
   const turbulenz = createTurbulenz(ctx, ids);
   const scratch = createScratch(ctx, ids);
@@ -72,7 +69,39 @@ export const tv = async () => {
       poly();
     }
 
-    prettyDebug(ctx);
+    {
+      const FINGER_SIZE = 0.2;
+      const X_SHIFT = 20;
+      overlay.clearRect(0, 0, WIDTH, HEIGHT);
+      const s = HEIGHT / 6;
+      for (const { hand, xStart, xShift } of [
+        { hand: detected.left, xStart: s, xShift: X_SHIFT },
+        { hand: detected.right, xStart: WIDTH - s, xShift: -X_SHIFT },
+      ]) {
+        if (hand.here) {
+          for (let i = 0; i < 5; i++) {
+            if (hand.fingers[i]) {
+              const x = xStart + i * xShift;
+              const xMin = x - s * FINGER_SIZE;
+              const xMax = x + s * FINGER_SIZE;
+              const y = (i + 1) * s;
+              const yMin = y - s * FINGER_SIZE;
+              const yMax = y + s * FINGER_SIZE;
+
+              overlay.beginPath();
+              overlay.moveTo(xMin, y);
+              overlay.arcTo(x, y, x, yMin, s * FINGER_SIZE);
+              overlay.arcTo(x, y, xMax, y, s * FINGER_SIZE);
+              overlay.arcTo(x, y, x, yMax, s * FINGER_SIZE);
+              overlay.arcTo(x, y, xMin, y, s * FINGER_SIZE);
+              overlay.arcTo(x, y, x, yMin, s * FINGER_SIZE);
+              overlay.stroke();
+            }
+          }
+        }
+      }
+    }
+
     requestAnimationFrame(loop);
     f++;
   };

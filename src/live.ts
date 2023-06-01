@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { HEIGHT, WIDTH } from "./consts";
 import { createPoly } from "./emotions/poly";
 import { createScratch } from "./emotions/scratch";

@@ -4,8 +4,8 @@ import "@tensorflow/tfjs-backend-webgl";
 import * as faceDetection from "@tensorflow-models/face-detection";
 import * as handPoseDetection from "@tensorflow-models/hand-pose-detection";
 import { Triangle, Vector3 } from "three";
-import { DEBUG } from "./consts";
 import x from "./x";
+import { DEBUG } from "./consts";
 
 const FPS = 30;
 
@@ -100,12 +100,6 @@ const getDetectedHand = (
 export const startDetecting = async () => {
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d")!;
-  canvas.style.transform = "scaleX(-1)";
-  if (DEBUG) {
-    const debugElt = document.createElement("div");
-    debugElt.style.display = "flex";
-    debugElt.style.alignItems = "flex-start";
-  }
 
   const infos = await navigator.mediaDevices.enumerateDevices();
   const maybeExternalDeviceId = infos
@@ -121,7 +115,9 @@ export const startDetecting = async () => {
   canvas.height = video.videoHeight;
 
   if (DEBUG) {
-    document.body.append(canvas);
+    canvas.style.transform = "scaleX(-1) translateY(100%)";
+    canvas.style.position = "absolute";
+    document.body.prepend(canvas);
   }
 
   const faceDetector = await faceDetection.createDetector(
@@ -145,8 +141,7 @@ export const startDetecting = async () => {
     const faces = await faceDetector.estimateFaces(video);
     const hands = await handPoseDetector.estimateHands(video);
 
-    // debug
-    {
+    if (DEBUG) {
       ctx.drawImage(video, 0, 0);
 
       for (const face of faces) {
@@ -171,30 +166,26 @@ export const startDetecting = async () => {
       }
     }
 
-    // detect
-    {
-      Object.assign(oldDetected, structuredClone(detected));
+    Object.assign(oldDetected, structuredClone(detected));
 
-      const left = hands.find((hand) => hand.handedness === "Right");
-      detected.left = getDetectedHand(left);
-      const right = hands.find((hand) => hand.handedness === "Left");
-      detected.right = getDetectedHand(right);
-      detected.nb =
-        detected.left.fingers.filter((x) => x).length +
-        detected.right.fingers.filter((x) => x).length;
+    const left = hands.find((hand) => hand.handedness === "Right");
+    detected.left = getDetectedHand(left);
+    const right = hands.find((hand) => hand.handedness === "Left");
+    detected.right = getDetectedHand(right);
+    detected.nb =
+      detected.left.fingers.filter((x) => x).length +
+      detected.right.fingers.filter((x) => x).length;
 
-      const [face] = faces;
-      if (face) {
-        detected.face.here = true;
-        detected.face.dir =
-          x(face.keypoints.find((x) => x.name === "noseTip")).x -
-            face.box.xMin <
-          face.box.width / 2
-            ? "right"
-            : "left";
-      } else {
-        detected.face = { here: false, dir: "none" };
-      }
+    const [face] = faces;
+    if (face) {
+      detected.face.here = true;
+      detected.face.dir =
+        x(face.keypoints.find((x) => x.name === "noseTip")).x - face.box.xMin <
+        face.box.width / 2
+          ? "right"
+          : "left";
+    } else {
+      detected.face = { here: false, dir: "none" };
     }
 
     setTimeout(loop, 1000 / FPS);
