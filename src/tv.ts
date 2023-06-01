@@ -62,7 +62,15 @@ export const tv = async () => {
         poly();
       }
     } else {
-      poly();
+      if (detected.left.here) {
+        if (detected.face) {
+          scratch("grey", 1000);
+        } else {
+          canvas.style.opacity = ["0", "1"][~~(f / 5) % 2];
+        }
+      } else {
+        poly();
+      }
     }
 
     {
@@ -70,6 +78,23 @@ export const tv = async () => {
       const X_SHIFT = 20;
       overlay.clearRect(0, 0, WIDTH, HEIGHT);
       const s = HEIGHT / 6;
+
+      const star = (x: number, y: number) => {
+        const xMin = x - s * FINGER_SIZE;
+        const xMax = x + s * FINGER_SIZE;
+        const yMin = y - s * FINGER_SIZE;
+        const yMax = y + s * FINGER_SIZE;
+
+        overlay.beginPath();
+        overlay.moveTo(xMin, y);
+        overlay.arcTo(x, y, x, yMin, s * FINGER_SIZE);
+        overlay.arcTo(x, y, xMax, y, s * FINGER_SIZE);
+        overlay.arcTo(x, y, x, yMax, s * FINGER_SIZE);
+        overlay.arcTo(x, y, xMin, y, s * FINGER_SIZE);
+        overlay.arcTo(x, y, x, yMin, s * FINGER_SIZE);
+        overlay.stroke();
+      };
+
       for (const { hand, xStart, xShift } of [
         { hand: detected.left, xStart: s, xShift: X_SHIFT },
         { hand: detected.right, xStart: WIDTH - s, xShift: -X_SHIFT },
@@ -77,24 +102,27 @@ export const tv = async () => {
         if (hand.here) {
           for (let i = 0; i < 5; i++) {
             if (hand.fingers[i]) {
-              const x = xStart + i * xShift;
-              const xMin = x - s * FINGER_SIZE;
-              const xMax = x + s * FINGER_SIZE;
-              const y = (i + 1) * s;
-              const yMin = y - s * FINGER_SIZE;
-              const yMax = y + s * FINGER_SIZE;
-
-              overlay.beginPath();
-              overlay.moveTo(xMin, y);
-              overlay.arcTo(x, y, x, yMin, s * FINGER_SIZE);
-              overlay.arcTo(x, y, xMax, y, s * FINGER_SIZE);
-              overlay.arcTo(x, y, x, yMax, s * FINGER_SIZE);
-              overlay.arcTo(x, y, xMin, y, s * FINGER_SIZE);
-              overlay.arcTo(x, y, x, yMin, s * FINGER_SIZE);
-              overlay.stroke();
+              star(xStart + i * xShift, (i + 1) * s);
             }
           }
         }
+      }
+      if (detected.face) {
+        const ps = detected.face!.points.map(({ x, y }) => ({
+          x: x * WIDTH,
+          y: y * HEIGHT,
+        }));
+        const strokeLine = (i: number, j: number) => {
+          overlay.beginPath();
+          overlay.moveTo(ps[i].x, ps[i].y);
+          overlay.lineTo(ps[j].x, ps[j].y);
+          overlay.stroke();
+        };
+        strokeLine(2, 3);
+        strokeLine(2, 0);
+        strokeLine(2, 1);
+        strokeLine(3, 4);
+        strokeLine(3, 5);
       }
     }
 

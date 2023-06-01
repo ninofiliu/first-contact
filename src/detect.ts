@@ -7,11 +7,21 @@ import { Triangle, Vector3 } from "three";
 import x from "./x";
 import { DEBUG } from "./consts";
 
+// 0 rightEye
+// 1 leftEye
+// 2 noseTip
+// 3 mouthCenter
+// 4 rightEarTragion
+// 5 leftEarTragion
+
 const FPS = 30;
 
 type DetectedFace = {
-  here: boolean;
   dir: "left" | "right" | "none";
+  points: {
+    x: number;
+    y: number;
+  }[];
 };
 
 type DetectedHand = {
@@ -21,7 +31,7 @@ type DetectedHand = {
 };
 
 type Detected = {
-  face: DetectedFace;
+  face: null | DetectedFace;
   left: DetectedHand;
   right: DetectedHand;
   nb: number;
@@ -34,7 +44,7 @@ const getDefaultDetectedHand = (): DetectedHand => ({
 });
 
 export const detected: Detected = {
-  face: { here: false, dir: "none" },
+  face: null,
   left: getDefaultDetectedHand(),
   right: getDefaultDetectedHand(),
   nb: 0,
@@ -178,14 +188,30 @@ export const startDetecting = async () => {
 
     const [face] = faces;
     if (face) {
-      detected.face.here = true;
-      detected.face.dir =
-        x(face.keypoints.find((x) => x.name === "noseTip")).x - face.box.xMin <
-        face.box.width / 2
-          ? "right"
-          : "left";
+      const newPoints = face.keypoints.map(({ x, y }) => ({
+        x: 1 - x / video.videoWidth,
+        y: y / video.videoHeight,
+      }));
+      detected.face = {
+        dir:
+          x(face.keypoints.find((x) => x.name === "noseTip")).x -
+            face.box.xMin <
+          face.box.width / 2
+            ? "right"
+            : "left",
+        points: oldDetected.face
+          ? newPoints.map(({ x: newX, y: newY }, i) => {
+              const SMOOTH = 0.8;
+              const { x: oldX, y: oldY } = oldDetected.face!.points[i];
+              return {
+                x: SMOOTH * oldX + (1 - SMOOTH) * newX,
+                y: SMOOTH * oldY + (1 - SMOOTH) * newY,
+              };
+            })
+          : newPoints,
+      };
     } else {
-      detected.face = { here: false, dir: "none" };
+      detected.face = null;
     }
 
     setTimeout(loop, 1000 / FPS);
