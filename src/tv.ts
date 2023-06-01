@@ -47,23 +47,19 @@ export const tv = async () => {
 
   let f = 0;
   const loop = () => {
-    if (detected.face.here) {
-      if (detected.right.here) {
-        const force = clamp(
-          mapLinear(detected.right.orientation, 0.95, -1, 0, 1),
-          0,
-          1
-        );
-        turbulenz.loop(force);
-        if (oldDetected.nb !== detected.nb) {
-          turbulenz.resetId();
-        }
-      } else {
-        if (detected.left.here) {
-          scratch("poly", 1000);
-        } else {
-          scratch("grey", 250);
-        }
+    if (detected.right.here) {
+      const force = clamp(
+        mapLinear(detected.right.orientation, 0.95, -1, 0, 1),
+        0,
+        1
+      );
+      turbulenz.loop(force);
+      if (oldDetected.nb !== detected.nb) {
+        turbulenz.resetId();
+      }
+
+      if (detected.left.here && detected.nb !== oldDetected.nb) {
+        poly();
       }
     } else {
       poly();
