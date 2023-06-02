@@ -17,7 +17,7 @@ import { DEBUG } from "./consts";
 const FPS = 30;
 
 type DetectedFace = {
-  dir: "left" | "right" | "none";
+  dir: "left" | "right" | "front";
   points: {
     x: number;
     y: number;
@@ -192,13 +192,12 @@ export const startDetecting = async () => {
         x: 1 - x / video.videoWidth,
         y: y / video.videoHeight,
       }));
+      const orientation =
+        (x(face.keypoints.find((x) => x.name === "noseTip")).x -
+          face.box.xMin) /
+        (face.box.xMax - face.box.xMin);
       detected.face = {
-        dir:
-          x(face.keypoints.find((x) => x.name === "noseTip")).x -
-            face.box.xMin <
-          face.box.width / 2
-            ? "right"
-            : "left",
+        dir: orientation > 0.7 ? "left" : orientation < 0.3 ? "right" : "front",
         points: oldDetected.face
           ? newPoints.map(({ x: newX, y: newY }, i) => {
               const SMOOTH = 0.2;

@@ -69,7 +69,11 @@ export const tv = async () => {
         scratch("grey", 1000);
       } else {
         if (detected.face) {
-          turbulenz.loop(0.2);
+          turbulenz.loop(0.1);
+          if (oldDetected.face?.dir === "front") {
+            if (detected.face.dir === "left") poly();
+            if (detected.face.dir === "right") turbulenz.resetId();
+          }
         } else {
           poly();
         }
