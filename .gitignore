@@ -1,5 +1,4 @@
 node_modules
 dist
 public/pkgs/
-public/media/
 src/files.ts
