@@ -23,9 +23,9 @@ const textures: Record<TextureName, Texture> = {
     stopAt: 0.2,
   },
   smooth: {
-    curviness: 30,
-    correctness: 30,
-    posterize: 10,
+    curviness: 13,
+    correctness: 21,
+    posterize: 7,
     stopAt: 0.3,
   },
 };

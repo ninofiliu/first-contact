@@ -64,7 +64,12 @@ export const tv = async () => {
       }
     } else {
       if (detected.left.here) {
-        scratch("grey", 1000, detected.left.fingers[1] ? "smooth" : "rough");
+        const nb = detected.left.fingers.filter(Boolean).length;
+        if (nb < 3) {
+          scratch("grey", 250, "smooth");
+        } else {
+          scratch("image", 1000, "rough");
+        }
       } else {
         if (detected.face) {
           turbulenz.loop(0.1);
