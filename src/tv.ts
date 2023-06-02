@@ -116,21 +116,6 @@ export const tv = async () => {
           y: y * HEIGHT,
         }));
 
-        {
-          /* lineface */
-          // const strokeLine = (i: number, j: number) => {
-          //   overlay.beginPath();
-          //   overlay.moveTo(ps[i].x, ps[i].y);
-          //   overlay.lineTo(ps[j].x, ps[j].y);
-          //   overlay.stroke();
-          // };
-          // strokeLine(2, 3);
-          // strokeLine(2, 0);
-          // strokeLine(2, 1);
-          // strokeLine(3, 4);
-          // strokeLine(3, 5);
-        }
-
         ctx.fillStyle = ["red", "purple"][~~(f / 5) % 2];
         for (const { x, y } of ps) {
           ctx.fillRect(x - 2, y - 2, 5, 5);
