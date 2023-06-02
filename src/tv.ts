@@ -59,14 +59,12 @@ export const tv = async () => {
       if (oldDetected.nb !== detected.nb) {
         turbulenz.resetId();
       }
-
       if (detected.left.here && detected.nb !== oldDetected.nb) {
         poly();
       }
     } else {
       if (detected.left.here) {
-        // TODO
-        scratch("grey", 1000);
+        scratch("grey", 1000, detected.left.fingers[1] ? "smooth" : "rough");
       } else {
         if (detected.face) {
           turbulenz.loop(0.1);

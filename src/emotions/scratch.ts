@@ -2,12 +2,33 @@ import { HEIGHT, WIDTH } from "../consts";
 import rPick from "../rPick";
 
 type PaletteName = "image" | "grey" | "poly";
-type Loop = (paletteName: PaletteName, batch: number) => void;
+type Loop = (
+  paletteName: PaletteName,
+  batch: number,
+  textureName: TextureName
+) => void;
 
-const curviness = 21;
-const correctness = 21;
-const posterize = 5;
-const stopAt = 0.2;
+type TextureName = "rough" | "smooth";
+type Texture = {
+  curviness: number;
+  correctness: number;
+  posterize: number;
+  stopAt: number;
+};
+const textures: Record<TextureName, Texture> = {
+  rough: {
+    curviness: 21,
+    correctness: 21,
+    posterize: 5,
+    stopAt: 0.2,
+  },
+  smooth: {
+    curviness: 5,
+    correctness: 5,
+    posterize: 10,
+    stopAt: 0.05,
+  },
+};
 
 const hex = (r: number, g: number, b: number) =>
   `#${[r, g, b].map((v) => v.toString(16).padStart(2, "0")).join("")}`;
@@ -28,9 +49,12 @@ const computePalette = (id: ImageData, nb: number) => {
     .map(({ r, g, b }) => hex(r, g, b));
 };
 
-const stopFn = (light: number, i: number) =>
-  ((Math.floor(light * posterize) / posterize) * curviness) % 1 <
-  i / correctness;
+const stopFn = (light: number, i: number, textureName: TextureName) =>
+  ((Math.floor(light * textures[textureName].posterize) /
+    textures[textureName].posterize) *
+    textures[textureName].curviness) %
+    1 <
+  i / textures[textureName].correctness;
 
 const createMatrix = <T>(fn: (x: number, y: number) => T) =>
   new Array(WIDTH)
@@ -125,14 +149,15 @@ const createLoop = (ctx: CanvasRenderingContext2D, id: ImageData): Loop => {
   const moveColor = (
     drawn: boolean[][],
     pos: { x: number; y: number },
-    src: number[][]
+    src: number[][],
+    textureName: TextureName
   ) => {
     let i = 0;
     for (const spiralPosition of spiralPositions(pos)) {
       i++;
       const { x, y } = spiralPosition;
       if (!drawn[x][y]) {
-        if (stopFn(src[x][y], i)) {
+        if (stopFn(src[x][y], i, textureName)) {
           pos.x = spiralPosition.x;
           pos.y = spiralPosition.y;
           return;
@@ -140,23 +165,23 @@ const createLoop = (ctx: CanvasRenderingContext2D, id: ImageData): Loop => {
       }
     }
   };
-  const move = () => {
-    moveColor(drawnR, posR, srcR);
-    moveColor(drawnG, posG, srcG);
-    moveColor(drawnB, posB, srcB);
+  const move = (textureName: TextureName) => {
+    moveColor(drawnR, posR, srcR, textureName);
+    moveColor(drawnG, posG, srcG, textureName);
+    moveColor(drawnB, posB, srcB, textureName);
   };
 
   let nbDrawn = 0;
 
   done = false;
-  return (paletteName, batch) => {
-    if (nbDrawn > WIDTH * HEIGHT * stopAt) {
+  return (paletteName, batch, textureName) => {
+    if (nbDrawn > WIDTH * HEIGHT * textures[textureName].stopAt) {
       done = true;
       return;
     }
     for (let i = 0; i < batch; i++) {
       if (done) return;
-      move();
+      move(textureName);
       draw(paletteName);
       nbDrawn++;
     }
@@ -167,7 +192,7 @@ let loop: Loop;
 done = true;
 export const createScratch =
   (ctx: CanvasRenderingContext2D, ids: ImageData[]): Loop =>
-  (paletteName, batch) => {
+  (paletteName, batch, textureName) => {
     if (done) loop = createLoop(ctx, rPick(ids));
-    loop(paletteName, batch);
+    loop(paletteName, batch, textureName);
   };
