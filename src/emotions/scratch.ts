@@ -1,7 +1,7 @@
 import { HEIGHT, WIDTH } from "../consts";
 import rPick from "../rPick";
 
-type PaletteName = "image" | "grey" | "poly";
+type PaletteName = "image" | "grey" | "poly" |'red'
 type Loop = (
   paletteName: PaletteName,
   batch: number,
@@ -70,6 +70,16 @@ const createLoop = (ctx: CanvasRenderingContext2D, id: ImageData): Loop => {
       "violet",
       "white",
     ],
+    red: [
+      '#000',
+      '#222',
+      '#444',
+      '#888',
+      '#800',
+      '#f00',
+      '#f00',
+      '#fff',
+    ]
   };
 
   const srcR = createMatrix((x, y) => id.data[4 * (WIDTH * y + x)] / 256);

@@ -39,7 +39,7 @@ export const tv = async () => {
 
   const overlay = x(overlayCanvas.getContext("2d"));
   overlay.strokeStyle = "white";
-  overlay.lineWidth = 5;
+  overlay.lineWidth = 3;
 
   const turbulenz = createTurbulenz(ctx, ids);
   const scratch = createScratch(ctx, ids);
@@ -66,7 +66,7 @@ export const tv = async () => {
       if (detected.left.here) {
         const nb = detected.left.fingers.filter(Boolean).length;
         if (nb < 3) {
-          scratch("grey", 250, "smooth");
+          scratch("red", 1000, "smooth");
         } else {
           scratch("image", 1000, "rough");
         }
@@ -123,7 +123,7 @@ export const tv = async () => {
           y: y * HEIGHT,
         }));
 
-        ctx.fillStyle = ["red", "purple"][~~(f / 5) % 2];
+        ctx.fillStyle = ["lime", "black"][~~(f / 5) % 2];
         for (const { x, y } of ps) {
           ctx.fillRect(x - 2, y - 2, 5, 5);
         }
