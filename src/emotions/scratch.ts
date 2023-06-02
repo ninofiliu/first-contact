@@ -23,10 +23,10 @@ const textures: Record<TextureName, Texture> = {
     stopAt: 0.2,
   },
   smooth: {
-    curviness: 5,
-    correctness: 5,
+    curviness: 30,
+    correctness: 30,
     posterize: 10,
-    stopAt: 0.05,
+    stopAt: 0.3,
   },
 };
 
@@ -48,13 +48,6 @@ const computePalette = (id: ImageData, nb: number) => {
     .map((_, i) => sortedBySum[Math.floor((length / nb) * (i + 0.5))])
     .map(({ r, g, b }) => hex(r, g, b));
 };
-
-const stopFn = (light: number, i: number, textureName: TextureName) =>
-  ((Math.floor(light * textures[textureName].posterize) /
-    textures[textureName].posterize) *
-    textures[textureName].curviness) %
-    1 <
-  i / textures[textureName].correctness;
 
 const createMatrix = <T>(fn: (x: number, y: number) => T) =>
   new Array(WIDTH)
@@ -146,42 +139,47 @@ const createLoop = (ctx: CanvasRenderingContext2D, id: ImageData): Loop => {
     done = true;
   }
 
-  const moveColor = (
-    drawn: boolean[][],
-    pos: { x: number; y: number },
-    src: number[][],
-    textureName: TextureName
-  ) => {
-    let i = 0;
-    for (const spiralPosition of spiralPositions(pos)) {
-      i++;
-      const { x, y } = spiralPosition;
-      if (!drawn[x][y]) {
-        if (stopFn(src[x][y], i, textureName)) {
-          pos.x = spiralPosition.x;
-          pos.y = spiralPosition.y;
-          return;
-        }
-      }
-    }
-  };
-  const move = (textureName: TextureName) => {
-    moveColor(drawnR, posR, srcR, textureName);
-    moveColor(drawnG, posG, srcG, textureName);
-    moveColor(drawnB, posB, srcB, textureName);
-  };
-
   let nbDrawn = 0;
 
   done = false;
   return (paletteName, batch, textureName) => {
-    if (nbDrawn > WIDTH * HEIGHT * textures[textureName].stopAt) {
+    const { posterize, curviness, correctness, stopAt } = textures[textureName];
+
+    const stopFn = (light: number, i: number) =>
+      ((Math.floor(light * posterize) / posterize) * curviness) % 1 <
+      i / correctness;
+
+    const moveColor = (
+      drawn: boolean[][],
+      pos: { x: number; y: number },
+      src: number[][]
+    ) => {
+      let i = 0;
+      for (const spiralPosition of spiralPositions(pos)) {
+        i++;
+        const { x, y } = spiralPosition;
+        if (!drawn[x][y]) {
+          if (stopFn(src[x][y], i)) {
+            pos.x = spiralPosition.x;
+            pos.y = spiralPosition.y;
+            return;
+          }
+        }
+      }
+    };
+    const move = () => {
+      moveColor(drawnR, posR, srcR);
+      moveColor(drawnG, posG, srcG);
+      moveColor(drawnB, posB, srcB);
+    };
+
+    if (nbDrawn > WIDTH * HEIGHT * stopAt) {
       done = true;
       return;
     }
     for (let i = 0; i < batch; i++) {
       if (done) return;
-      move(textureName);
+      move();
       draw(paletteName);
       nbDrawn++;
     }
