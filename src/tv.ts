@@ -10,6 +10,10 @@ import { setupRecording } from "./record";
 import { computeIds } from "./shorts";
 import { clamp, mapLinear } from "three/src/math/MathUtils";
 
+const audio = new Audio('/t-rex-roar.mp3')
+audio.autoplay=true;
+audio.loop=true
+
 const RECORD = false;
 
 export const tv = async () => {
