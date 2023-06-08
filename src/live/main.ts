@@ -8,17 +8,17 @@ import { computeIds } from "../shorts";
 import x from "../x";
 import { setupAkai } from "./akai";
 
-const bgCanvas = document.createElement("canvas");
-bgCanvas.width = WIDTH;
-bgCanvas.height = HEIGHT;
-document.body.append(bgCanvas);
-const bg = x(bgCanvas.getContext("2d"));
+const aCanvas = document.createElement("canvas");
+aCanvas.width = WIDTH;
+aCanvas.height = HEIGHT;
+document.body.append(aCanvas);
+const a = x(aCanvas.getContext("2d"));
 
-const fgCanvas = document.createElement("canvas");
-fgCanvas.width = WIDTH;
-fgCanvas.height = HEIGHT;
-document.body.append(fgCanvas);
-const fg = x(fgCanvas.getContext("2d"));
+const bCanvas = document.createElement("canvas");
+bCanvas.width = WIDTH;
+bCanvas.height = HEIGHT;
+document.body.append(bCanvas);
+const b = x(bCanvas.getContext("2d"));
 
 (async () => {
   const { faders, onPad } = await setupAkai([
@@ -27,8 +27,8 @@ const fg = x(fgCanvas.getContext("2d"));
   const ids = await computeIds();
   const poly = createPoly();
   document.body.prepend(poly.canvas);
-  const turbulenz = createTurbulenz(bg, ids);
-  const scratch = createScratch(fg, ids);
+  const turbulenz = createTurbulenz(a, ids);
+  const scratch = createScratch(b, ids);
 
   const state: {
     palette: Parameters<typeof scratch>[0];
@@ -50,23 +50,23 @@ const fg = x(fgCanvas.getContext("2d"));
 
   const tick = () => {
     poly.loop(faders[0] * 0.03, faders[3]);
-    bg.drawImage(poly.canvas, 0, 0);
+    a.drawImage(poly.canvas, 0, 0);
 
     turbulenz.loop(faders[1]);
 
     scratch(state.palette, 500, "rough");
     const r = 10 ** (3 * faders[2]);
-    fg.clearRect(
+    b.clearRect(
       Math.random() * WIDTH - r,
       Math.random() * HEIGHT - r,
       2 * r,
       2 * r
     );
-    bg.drawImage(fgCanvas, 0, 0);
+    a.drawImage(bCanvas, 0, 0);
 
     poly.canvas.style.opacity = `${faders[6]}`;
-    bgCanvas.style.opacity = `${faders[7]}`;
-    fgCanvas.style.opacity = `${faders[8]}`;
+    aCanvas.style.opacity = `${faders[7]}`;
+    bCanvas.style.opacity = `${faders[8]}`;
 
     requestAnimationFrame(tick);
   };
