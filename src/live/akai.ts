@@ -1,5 +1,6 @@
-export const setupAkai = async () => {
-  const faders = Array.from({ length: 9 }, () => 0);
+export const setupAkai = async (
+  faders: number[] = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+) => {
   const onPad = new Set<(x: number, y: number) => void>();
 
   const access = await navigator.requestMIDIAccess();
