@@ -37,6 +37,7 @@ const program = createProgram();
 const locations = {
   a_position: gl.getAttribLocation(program, "a_position"),
   u_time: gl.getUniformLocation(program, "u_time"),
+  u_threshold: gl.getUniformLocation(program, "u_threshold"),
 };
 gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
 gl.enableVertexAttribArray(locations.a_position);
@@ -47,8 +48,14 @@ gl.bufferData(
   gl.STATIC_DRAW
 );
 
-export const createPoly = (ctx: CanvasRenderingContext2D) => () => {
-  gl.uniform1f(locations.u_time, performance.now() / 1000);
-  gl.drawArrays(gl.TRIANGLES, 0, 6);
-  ctx.drawImage(canvas, 0, 0);
-};
+let time = 0;
+
+export const createPoly = () => ({
+  canvas,
+  gl,
+  loop: (speed: number, threshold: number) => {
+    gl.uniform1f(locations.u_threshold, threshold);
+    gl.uniform1f(locations.u_time, (time += speed));
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+  },
+});

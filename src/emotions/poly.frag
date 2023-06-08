@@ -1,6 +1,7 @@
 precision mediump float;
 varying vec4 v_position;
 uniform float u_time;
+uniform float u_threshold;
 
 const int deg = 5;
 vec2 roots[deg];
@@ -32,9 +33,12 @@ vec2 fp(vec2 a) {
 }
 
 vec4 col(vec2 a) {
-  float b = 1.0 / (1.0 + 0.01 * abs(a.y));
-  return vec4(1.0 / (1.0 + abs(a.x)), 1.0 / (1.0 + abs(a.y)),
-              b, b>0.1?1.0:0.0);
+  return vec4(
+    1. / (1.0 + abs(a.x)),
+    1. / (1.0 + abs(a.y)),
+    1. / (1.0 + 0.1 * abs(a.y)),
+    (1. / (1.0 + 0.1 * abs(a.y)))>u_threshold?.5:0.
+  );
 }
 
 void main() {
