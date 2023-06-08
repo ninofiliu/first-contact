@@ -2,6 +2,7 @@ import "./styles.css";
 
 import { HEIGHT, WIDTH } from "../consts";
 import { createPoly } from "../emotions/poly";
+import { createScratch } from "../emotions/scratch";
 import { createTurbulenz } from "../emotions/turbulenz";
 import { computeIds } from "../shorts";
 import x from "../x";
@@ -27,17 +28,41 @@ const fg = x(fgCanvas.getContext("2d"));
   const poly = createPoly();
   document.body.prepend(poly.canvas);
   const turbulenz = createTurbulenz(bg, ids);
+  const scratch = createScratch(fg, ids);
+
+  const state: {
+    palette: Parameters<typeof scratch>[0];
+  } = {
+    palette: "grey",
+  };
 
   onPad.add((x, y) => {
+    console.log(x, y);
     if (x === 1) {
       turbulenz.resetId();
+    }
+    if (x === 2) {
+      if (y < 4) {
+        state.palette = (["image", "grey", "poly", "red"] as const)[y];
+      }
     }
   });
 
   const tick = () => {
     poly.loop(faders[0] * 0.03, faders[3]);
     bg.drawImage(poly.canvas, 0, 0);
+
     turbulenz.loop(faders[1]);
+
+    scratch(state.palette, 500, "rough");
+    const r = 10 ** (3 * faders[2]);
+    fg.clearRect(
+      Math.random() * WIDTH - r,
+      Math.random() * HEIGHT - r,
+      2 * r,
+      2 * r
+    );
+    bg.drawImage(fgCanvas, 0, 0);
 
     poly.canvas.style.opacity = `${faders[6]}`;
     bgCanvas.style.opacity = `${faders[7]}`;
