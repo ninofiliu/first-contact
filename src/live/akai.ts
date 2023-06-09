@@ -5,6 +5,7 @@ export const setupAkai = async (
 
   const access = await navigator.requestMIDIAccess();
   access.inputs.forEach((input) => {
+    console.log(`Listening midi of ${input.name}`);
     input.addEventListener("midimessage", (evt) => {
       const codes = {
         noteOff: 0x80,

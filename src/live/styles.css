@@ -7,4 +7,5 @@ body {
 canvas {
   position: fixed;
   inset: 0 0 0 0;
+  image-rendering: crisp-edges;
 }
