@@ -37,3 +37,10 @@ All software components are free and open source, even The Algorithm. License de
 55cm x 65cm x 70cm approx
 
 Installation render (the monitor is not the same model, but it basically looks like this)
+
+## Installation
+
+1. Connect the computer and the TV with the HDMI/Peritel converter in between
+2. Press down the `power` and `tv` buttons of the URC4504 universal remote control until the red light stays on when pressing up
+3. Type 0085 on the remote to select the Philip TV model
+4. Type 0 on the remote to fetch the AV input
