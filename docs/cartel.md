@@ -1,0 +1,5 @@
+*First Contact* (real time art, generative art, 2023) is an interactive installation in which a stream of abstract viduals is influenced in real time by the behavior of the spectator, detected by a webcam and analysed by an algorithm.
+
+It's relatively easy to understand some *atomic rules* of this interaction - hand rotation controls the speed of some visual transformation, head and hand position also dictate some behaviors, as well as which fingers are pointed up - but the global *reasonning* of the algorithm seem to be out of reach.
+
+*First Contact* is a proof of concept of the existence of *delphic artificial intelligence*, where the illusion of consciousness of a being does not rely on its likeness to humans (OpenAI's ChatGPT, Blade Runner's Androids) but rather on the complexity of its language, whether it's understood or not.
