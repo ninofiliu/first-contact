@@ -1,11 +1,12 @@
-import "@mediapipe/face_detection";
-import "@tensorflow/tfjs-core";
-import "@tensorflow/tfjs-backend-webgl";
-import * as faceDetection from "@tensorflow-models/face-detection";
-import * as handPoseDetection from "@tensorflow-models/hand-pose-detection";
 import { Triangle, Vector3 } from "three";
-import x from "./x";
-import { DEBUG } from "./consts";
+import { DEBUG, HEIGHT, WIDTH } from "./consts";
+
+import {
+  FaceDetector,
+  FilesetResolver,
+  HandLandmarker,
+  NormalizedLandmark,
+} from "@mediapipe/tasks-vision";
 
 // 0 rightEye
 // 1 leftEye
@@ -52,41 +53,27 @@ export const detected: Detected = {
 
 export const oldDetected: Detected = structuredClone(detected);
 
-const getFingerFlexion = (hand: handPoseDetection.Hand, index: number) => {
-  if (!hand.keypoints3D) throw new Error("should detect 3D");
-
+const getFingerFlexion = (hand: NormalizedLandmark[], index: number) => {
   const base = new Vector3(
-    hand.keypoints3D[4 * index + 2].x - hand.keypoints3D[4 * index + 1].x,
-    hand.keypoints3D[4 * index + 2].y - hand.keypoints3D[4 * index + 1].y,
-    hand.keypoints3D[4 * index + 2].z! - hand.keypoints3D[4 * index + 1].z!
+    hand[4 * index + 2].x - hand[4 * index + 1].x,
+    hand[4 * index + 2].y - hand[4 * index + 1].y,
+    hand[4 * index + 2].z! - hand[4 * index + 1].z!,
   ).normalize();
 
   const top = new Vector3(
-    hand.keypoints3D[4 * index + 4].x - hand.keypoints3D[4 * index + 3].x,
-    hand.keypoints3D[4 * index + 4].y - hand.keypoints3D[4 * index + 3].y,
-    hand.keypoints3D[4 * index + 4].z! - hand.keypoints3D[4 * index + 3].z!
+    hand[4 * index + 4].x - hand[4 * index + 3].x,
+    hand[4 * index + 4].y - hand[4 * index + 3].y,
+    hand[4 * index + 4].z! - hand[4 * index + 3].z!,
   ).normalize();
 
   return base.dot(top);
 };
 
-const getHandorientation = (hand: handPoseDetection.Hand) => {
+const getHandorientation = (hand: NormalizedLandmark[]) => {
   const triangle = new Triangle(
-    new Vector3(
-      hand.keypoints3D![0].x,
-      hand.keypoints3D![0].y,
-      hand.keypoints3D![0].z
-    ),
-    new Vector3(
-      hand.keypoints3D![17].x,
-      hand.keypoints3D![17].y,
-      hand.keypoints3D![17].z
-    ),
-    new Vector3(
-      hand.keypoints3D![5].x,
-      hand.keypoints3D![5].y,
-      hand.keypoints3D![5].z
-    )
+    new Vector3(hand[0].x, hand[0].y, hand[0].z),
+    new Vector3(hand[17].x, hand[17].y, hand[17].z),
+    new Vector3(hand[5].x, hand[5].y, hand[5].z),
   );
   const normal = new Vector3();
   triangle.getNormal(normal);
@@ -94,7 +81,7 @@ const getHandorientation = (hand: handPoseDetection.Hand) => {
 };
 
 const getDetectedHand = (
-  hand: handPoseDetection.Hand | undefined
+  hand: NormalizedLandmark[] | undefined,
 ): DetectedHand =>
   hand
     ? {
@@ -102,7 +89,7 @@ const getDetectedHand = (
         orientation: getHandorientation(hand),
         fingers: Array.from(
           { length: 5 },
-          (_, i) => getFingerFlexion(hand, i) > 0.4
+          (_, i) => getFingerFlexion(hand, i) > 0.4,
         ),
       }
     : getDefaultDetectedHand();
@@ -110,14 +97,18 @@ const getDetectedHand = (
 export const startDetecting = async () => {
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d")!;
+  ctx.font = "48px serif";
 
-  const infos = await navigator.mediaDevices.enumerateDevices();
-  const maybeExternalDeviceId = infos
-    .filter((info) => info.kind === "videoinput")
-    .find((info) => !/integrated/i.test(info.label))?.deviceId;
-  const stream = await navigator.mediaDevices.getUserMedia({
-    video: { deviceId: maybeExternalDeviceId },
-  });
+  // hack to get the right cam in old computer
+  // const infos = await navigator.mediaDevices.enumerateDevices();
+  // const maybeExternalDeviceId = infos
+  //   .filter((info) => info.kind === "videoinput")
+  //   .find((info) => !/integrated/i.test(info.label))?.deviceId;
+  // const stream = await navigator.mediaDevices.getUserMedia({
+  //   video: { deviceId: maybeExternalDeviceId },
+  // });
+  const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+
   const video = document.createElement("video");
   video.srcObject = stream;
   await video.play();
@@ -130,72 +121,88 @@ export const startDetecting = async () => {
     document.body.prepend(canvas);
   }
 
-  const faceDetector = await faceDetection.createDetector(
-    faceDetection.SupportedModels.MediaPipeFaceDetector,
-    {
-      runtime: "mediapipe",
-      solutionPath: "/pkgs/@mediapipe/face_detection",
-      maxFaces: 1,
-    }
+  const vision = await FilesetResolver.forVisionTasks(
+    "/pkgs/@mediapipe/tasks-vision/wasm",
   );
-  const handPoseDetector = await handPoseDetection.createDetector(
-    handPoseDetection.SupportedModels.MediaPipeHands,
-    {
-      runtime: "mediapipe",
-      solutionPath: "/pkgs/@mediapipe/hands",
-      modelType: "full",
-    }
-  );
+  const facedetector = await FaceDetector.createFromOptions(vision, {
+    baseOptions: {
+      modelAssetPath: "/blaze_face_short_range.tflite",
+      delegate: "GPU",
+    },
+    runningMode: "VIDEO",
+  });
+  const handPoseDetector = await HandLandmarker.createFromOptions(vision, {
+    baseOptions: {
+      modelAssetPath: "/hand_landmarker.task",
+      delegate: "GPU",
+    },
+    runningMode: "VIDEO",
+    numHands: 2,
+  });
 
   const loop = async () => {
-    const faces = await faceDetector.estimateFaces(video);
-    const hands = await handPoseDetector.estimateHands(video);
+    const facesD = await facedetector.detectForVideo(video, performance.now());
+    const handsD = await handPoseDetector.detectForVideo(
+      video,
+      performance.now(),
+    );
 
     if (DEBUG) {
       ctx.drawImage(video, 0, 0);
 
-      for (const face of faces) {
+      for (const face of facesD.detections) {
         ctx.strokeStyle = "lime";
         ctx.strokeRect(
-          face.box.xMin,
-          face.box.yMin,
-          face.box.width,
-          face.box.height
+          face.boundingBox?.originX ?? 0,
+          face.boundingBox?.originY ?? 0,
+          face.boundingBox?.width ?? 0,
+          face.boundingBox?.height ?? 0,
         );
         ctx.fillStyle = "aqua";
-        for (const { x, y } of face.keypoints) {
-          ctx.fillRect(x - 2, y - 2, 5, 5);
+        for (let i = 0; i < face.keypoints.length; i++) {
+          ctx.fillText(
+            `${i}`,
+            face.keypoints[i].x * WIDTH,
+            face.keypoints[i].y * HEIGHT,
+          );
         }
       }
 
-      for (const hand of hands) {
+      for (let i = 0; i < handsD.landmarks.length; i++) {
+        const landmarks = handsD.landmarks[i];
         ctx.fillStyle = "red";
-        for (const { x, y } of hand.keypoints) {
-          ctx.fillRect(x - 2, y - 2, 5, 5);
+        for (const { x, y } of landmarks) {
+          ctx.fillRect(x * WIDTH - 2, y * HEIGHT - 2, 5, 5);
         }
       }
     }
 
     Object.assign(oldDetected, structuredClone(detected));
-
-    const left = hands.find((hand) => hand.handedness === "Right");
+    const hands = handsD.landmarks.map((landmarks, i) => ({
+      landmarks,
+      handedness: handsD.handedness[i],
+    }));
+    const left = hands.find((hand) =>
+      hand.handedness.some((h) => h.categoryName == "Left" && h.score > 0.5),
+    )?.landmarks;
+    const right = hands.find((hand) =>
+      hand.handedness.some((h) => h.categoryName == "Right" && h.score > 0.5),
+    )?.landmarks;
     detected.left = getDetectedHand(left);
-    const right = hands.find((hand) => hand.handedness === "Left");
     detected.right = getDetectedHand(right);
     detected.nb =
       detected.left.fingers.filter((x) => x).length +
       detected.right.fingers.filter((x) => x).length;
 
-    const [face] = faces;
+    const [face] = facesD.detections;
     if (face) {
       const newPoints = face.keypoints.map(({ x, y }) => ({
         x: 1 - x / video.videoWidth,
         y: y / video.videoHeight,
       }));
       const orientation =
-        (x(face.keypoints.find((x) => x.name === "noseTip")).x -
-          face.box.xMin) /
-        (face.box.xMax - face.box.xMin);
+        (face.keypoints[2].x * WIDTH - (face.boundingBox?.originX ?? 0)) /
+        (face.boundingBox?.width ?? 0);
       detected.face = {
         dir: orientation > 0.7 ? "left" : orientation < 0.3 ? "right" : "front",
         points: oldDetected.face
@@ -203,8 +210,8 @@ export const startDetecting = async () => {
               const SMOOTH = 0.2;
               const { x: oldX, y: oldY } = oldDetected.face!.points[i];
               return {
-                x: SMOOTH * oldX + (1 - SMOOTH) * newX,
-                y: SMOOTH * oldY + (1 - SMOOTH) * newY,
+                x: SMOOTH * oldX + (1 - SMOOTH) * newX * WIDTH,
+                y: SMOOTH * oldY + (1 - SMOOTH) * newY * HEIGHT,
               };
             })
           : newPoints,

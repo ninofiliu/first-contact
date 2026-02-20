@@ -98,3 +98,4 @@ public/media/eyes/mme5.webp filter=lfs diff=lfs merge=lfs -text
 public/media/greens/25398899_1968018806791848_2637432643740561280_n.jpg filter=lfs diff=lfs merge=lfs -text
 public/media/greens/26195457_329906104194312_751745844565899094_n.jpg filter=lfs diff=lfs merge=lfs -text
 public/media/greens/27067746_1542177999235069_8284255672391061328_n.jpg filter=lfs diff=lfs merge=lfs -text
+*.tflite filter=lfs diff=lfs merge=lfs -text
