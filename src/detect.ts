@@ -111,6 +111,8 @@ export const startDetecting = async () => {
 
   const video = document.createElement("video");
   video.srcObject = stream;
+  video.muted = true;
+  video.playsInline = true;
   await video.play();
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
